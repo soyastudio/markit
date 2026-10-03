@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ComplexTemplateBuilder
+
+soya:
+  framework:
+    markit:
+      secret-key: JMVPebNWUd1LTYiVL9Ymrg1ycNnLceJILhhoppZa3DU=
+      empty-project-template: classpath:markit/empty-project.mustache
