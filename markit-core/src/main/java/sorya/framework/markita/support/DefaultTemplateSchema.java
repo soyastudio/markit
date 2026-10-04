@@ -22,6 +22,30 @@ public class DefaultTemplateSchema implements TemplateSchema {
         return params.get(name);
     }
 
+    public static TemplateSchema create(String format, String schema) {
+        if ("yaml".equalsIgnoreCase(format)) {
+            return fromYaml(schema);
+        } else if ("json".equalsIgnoreCase(format)) {
+            return fromJsonSchema(schema);
+        } else if ("xml".equalsIgnoreCase(format)) {
+            return fromXmlSchema(schema);
+        } else {
+            throw new IllegalArgumentException("Schema format is not supported: " + format);
+        }
+    }
+
+    public static TemplateSchema fromYaml(String yaml) {
+        return null;
+    }
+
+    public static TemplateSchema fromJsonSchema(String jsonSchema) {
+        return null;
+    }
+
+    public static TemplateSchema fromXmlSchema(String xmlSchema) {
+        return null;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -33,7 +57,7 @@ public class DefaultTemplateSchema implements TemplateSchema {
         }
 
         public Builder addParameter(String name) {
-            if(params.containsKey(name)) {
+            if (params.containsKey(name)) {
                 throw new IllegalStateException("Parameter already exists: " + name);
             }
             params.put(name, new DefaultTemplateParameter(name));
@@ -41,7 +65,7 @@ public class DefaultTemplateSchema implements TemplateSchema {
         }
 
         public Builder addParameter(String name, String type, boolean required, String defaultValue) {
-            if(params.containsKey(name)) {
+            if (params.containsKey(name)) {
                 throw new IllegalStateException("Parameter already exists: " + name);
             }
             params.put(name, new DefaultTemplateParameter(name, type, required, defaultValue));

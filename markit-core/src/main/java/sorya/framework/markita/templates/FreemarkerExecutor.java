@@ -1,4 +1,4 @@
-package sorya.framework.markita.executors;
+package sorya.framework.markita.templates;
 
 import sorya.framework.markita.TemplateExecutor;
 

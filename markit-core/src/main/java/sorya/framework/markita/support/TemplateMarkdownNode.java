@@ -124,14 +124,14 @@ public class TemplateMarkdownNode {
             builder.newLineWithCurrentIndents("```");
             builder.newLine();
             builder.newLineWithCurrentIndents("Input Schema");
-            builder.newLineWithCurrentIndents(TemplateBuilderContext.INPUT_FENCE_CHAR.repeat(3)).append(templateBlock.getInputSchemaFormat());
+            builder.newLineWithCurrentIndents(SchemaFormat.INPUT_FENCE_CHAR.repeat(3)).append(templateBlock.getInputSchemaFormat());
             builder.newLineWithCurrentIndents(templateBlock.getInputSchema());
-            builder.newLineWithCurrentIndents(TemplateBuilderContext.INPUT_FENCE_CHAR.repeat(3));
+            builder.newLineWithCurrentIndents(SchemaFormat.INPUT_FENCE_CHAR.repeat(3));
             builder.newLine();
             builder.newLineWithCurrentIndents("Output Schema");
-            builder.newLineWithCurrentIndents(TemplateBuilderContext.OUTPUT_FENCE_CHAR.repeat(3)).append(templateBlock.getInputSchemaFormat());
+            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3)).append(templateBlock.getInputSchemaFormat());
             builder.newLineWithCurrentIndents(templateBlock.getInputSchema());
-            builder.newLineWithCurrentIndents(TemplateBuilderContext.OUTPUT_FENCE_CHAR.repeat(3));
+            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3));
         }
 
         builder.newLine();

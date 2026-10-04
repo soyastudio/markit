@@ -22,15 +22,12 @@ public class TemplateBuilderContext {
     public static final String EVALUATORS = "EVALUATORS";
     public static final String RENDERERS = "RENDERERS";
 
-    public static final String INPUT_FENCE_CHAR = "`";
-    public static final String OUTPUT_FENCE_CHAR = "~";
-
     public static final String EMPTY_TEMPLATE;
     public static final TemplateBlock TEMPLATE_BLOCK_TEMPLATE;
 
     private final TemplateMetadata metadata = new TemplateMetadata();
-
     private TemplateMarkdownNode root = null;
+
     private Map<String, TemplateMarkdownNode> indexMap;
 
     static {
@@ -56,13 +53,13 @@ public class TemplateBuilderContext {
                         public void visit(FencedCodeBlock fencedCodeBlock) {
                             String format = fencedCodeBlock.getInfo();
                             String payload = fencedCodeBlock.getLiteral();
-                            if (!isSchema(format)) {
+                            if (!SchemaFormat.isSchema(format)) {
                                 TEMPLATE_BLOCK_TEMPLATE.setTemplateFormat(format);
                                 TEMPLATE_BLOCK_TEMPLATE.setTemplate(payload);
-                            } else if (INPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
+                            } else if (SchemaFormat.INPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
                                 TEMPLATE_BLOCK_TEMPLATE.setInputSchemaFormat(format);
                                 TEMPLATE_BLOCK_TEMPLATE.setInputSchema(payload);
-                            } else if ((OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter()))) {
+                            } else if ((SchemaFormat.OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter()))) {
                                 TEMPLATE_BLOCK_TEMPLATE.setOutputSchemaFormat(format);
                                 TEMPLATE_BLOCK_TEMPLATE.setOutputSchema(payload);
                             }
@@ -190,16 +187,6 @@ public class TemplateBuilderContext {
         return builder.toString();
     }
 
-    private static boolean isSchema(String format) {
-        if (format == null) return false;
-        try {
-            SchemaFormat.valueOf(format.toUpperCase());
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
-
     private class Visitor extends AbstractVisitor {
 
         @Override
@@ -303,11 +290,11 @@ public class TemplateBuilderContext {
 
                     String payload = fencedCodeBlock.getLiteral().trim();
                     String format = fencedCodeBlock.getInfo().trim();
-                    if (isSchema(format)) {
-                        if (INPUT_FENCE_CHAR.endsWith(fencedCodeBlock.getFenceCharacter())) {
+                    if (SchemaFormat.isSchema(format)) {
+                        if (SchemaFormat.INPUT_FENCE_CHAR.endsWith(fencedCodeBlock.getFenceCharacter())) {
                             block.setInputSchemaFormat(format);
                             block.setInputSchema(payload);
-                        } else if (OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
+                        } else if (SchemaFormat.OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
                             block.setOutputSchemaFormat(format);
                             block.setOutputSchema(payload);
                         }
