@@ -30,7 +30,7 @@ public class DefaultTemplateSchema implements TemplateSchema {
         } else if ("xml".equalsIgnoreCase(format)) {
             return fromXmlSchema(schema);
         } else {
-            throw new IllegalArgumentException("Schema format is not supported: " + format);
+            return null;
         }
     }
 

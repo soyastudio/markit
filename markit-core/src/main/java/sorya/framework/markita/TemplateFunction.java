@@ -10,4 +10,8 @@ public interface TemplateFunction {
     TemplateSchema getSchema();
 
     TemplateResolver getResolver();
+
+    String getOutputFormat();
+
+    TemplateSchema getOutputSchema();
 }

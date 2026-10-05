@@ -4,4 +4,6 @@ public interface TemplateFunctionPackage {
     String getName();
 
     TemplateFunction[] getFunctions();
+
+    String toString();
 }

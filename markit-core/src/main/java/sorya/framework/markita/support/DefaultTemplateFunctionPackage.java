@@ -5,41 +5,62 @@ import org.commonmark.ext.front.matter.YamlFrontMatterExtension;
 import org.commonmark.ext.front.matter.YamlFrontMatterNode;
 import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
+import sorya.framework.markita.DefaultTemplateExecutor;
 import sorya.framework.markita.TemplateFunction;
 import sorya.framework.markita.TemplateFunctionPackage;
+import sorya.framework.markita.util.TextBuilder;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DefaultTemplateFunctionPackage implements TemplateFunctionPackage {
+    private static final String TEMPLATE;
 
-    private final String markdown;
     private final TemplateMetadata metadata = new TemplateMetadata();
     private TemplateMarkdownNode root = null;
 
     private final Map<String, TemplateFunction> functions = new LinkedHashMap<>();
 
+    static {
+        try {
+            try (InputStream inputStream = DefaultTemplateFunctionPackage.class.getClassLoader().getResourceAsStream("META-INF/templates/template-function-package.md")) {
+                if (inputStream != null) {
+                    TEMPLATE = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                } else {
+                    throw new ExceptionInInitializerError("Cannot find template-function-package!");
+                }
+            }
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     public DefaultTemplateFunctionPackage(String markdown) {
-        this.markdown = markdown;
         Parser parser = Parser.builder()
                 .extensions(Collections.singletonList(YamlFrontMatterExtension.create()))
                 .build();
         Node document = parser.parse(markdown);
         document.accept(new Visitor());
 
-        Arrays.stream(metadata.getFunctions()).forEach(e -> {
-            String name = e.contains("?") ? e.substring(0, e.indexOf("?")) : e;
-            TemplateBlock block = root.getChildren().get(name).getTemplateBlock();
-            TemplateFunction function = new DefaultTemplateFunction(name,
-                    block.getTemplateFormat(),
-                    block.getTemplate(),
-                    DefaultTemplateSchema.create(block.getInputSchemaFormat(), block.getInputSchema()));
-            functions.put(name, function);
-        });
+        if (metadata.getName() != null) {
+            Arrays.stream(metadata.getFunctions()).forEach(e -> {
+                if (!e.trim().startsWith("[")) {
+                    String name = e.contains("?") ? e.substring(0, e.indexOf("?")) : e;
+                    TemplateBlock block = root.getChildren().get(name).getTemplateBlock();
+                    TemplateFunction function = new DefaultTemplateFunction(name,
+                            block.getTemplateFormat(),
+                            block.getTemplate(),
+                            DefaultTemplateSchema.create(block.getInputSchemaFormat(), block.getInputSchema()));
+                    functions.put(name, function);
 
+                }
+            });
+        }
     }
 
     @Override
@@ -52,9 +73,41 @@ public class DefaultTemplateFunctionPackage implements TemplateFunctionPackage {
         return functions.values().toArray(new TemplateFunction[0]);
     }
 
+    public TemplateFunction get(String functionName) {
+        return functions.get(functionName);
+    }
+
     @Override
     public String toString() {
-        return markdown;
+        TextBuilder builder = TextBuilder.builder().setIndent(2).append("---");
+        builder.newLineWithCurrentIndents("name: ").append(metadata.getName());
+        builder.newLineWithCurrentIndents("owner: ").append(metadata.getOwner() == null ? "" : metadata.getOwner());
+
+        builder.newLineWithCurrentIndents("tags:");
+        builder.indentRight();
+        Arrays.stream(metadata.getTags()).forEach(e -> {
+            builder.newLineWithCurrentIndents("- ").append("\"").append(e).append("\"");
+        });
+        builder.indentLeft();
+
+        builder.newLineWithCurrentIndents("functions:");
+        builder.indentRight();
+        Arrays.stream(metadata.getFunctions()).forEach(e -> {
+            builder.newLineWithCurrentIndents("- ").append("\"").append(e).append("\"");
+        });
+        builder.indentLeft();
+
+        builder.newLineWithCurrentIndents("---");
+
+        root.toMarkdown(builder);
+
+        return builder.toString();
+
+    }
+
+    public static DefaultTemplateFunctionPackage newInstance(String name) {
+        String markdown = new DefaultTemplateExecutor().execute(TEMPLATE, Map.of("name", name));
+        return new DefaultTemplateFunctionPackage(markdown);
     }
 
     private class Visitor extends AbstractVisitor {
@@ -86,39 +139,45 @@ public class DefaultTemplateFunctionPackage implements TemplateFunctionPackage {
                     node = node.getNext();
                 }
 
-                Arrays.stream(metadata.getFunctions()).forEach(e -> {
-                    if (!e.startsWith("[")) {
-                        String name = e.contains("?") ? e.substring(0, e.indexOf("?")) : e.trim();
-                        TemplateMarkdownNode function = new TemplateMarkdownNode(name);
-                        function.setTitle(name);
-                        function.setTemplateBlock(new TemplateBlock());
-                        root.addChild(function);
-                    }
-                });
+                if (metadata.getName() != null) {
+                    root = new TemplateMarkdownNode(TemplateMarkdownNode.ROOT);
+                    root.setTitle("Template Function Package: " + metadata.getName());
+                    Arrays.stream(metadata.getFunctions()).forEach(e -> {
+                        if (!e.startsWith("[")) {
+                            String name = e.contains("?") ? e.substring(0, e.indexOf("?")) : e.trim();
+                            TemplateMarkdownNode function = new TemplateMarkdownNode(name);
+                            function.setTitle(name);
+                            function.setTemplateBlock(new TemplateBlock());
+
+                            root.addChild(function);
+                        }
+                    });
+                }
             }
 
         }
 
         @Override
         public void visit(Heading heading) {
-            if (heading.getLevel() == 1 && root == null) {
-                root = new TemplateMarkdownNode(TemplateMarkdownNode.ROOT);
+            if (heading.getLevel() == 1 && root != null) {
                 if (heading.getFirstChild() instanceof Text txt) {
                     root.setTitle(txt.getLiteral());
-                } else {
-                    root.setTitle(metadata.getName());
                 }
 
                 load(heading, root);
 
-            } else if (heading.getLevel() == 2 && heading.getFirstChild() instanceof Text text) {
+            } else if (heading.getLevel() == 2 && heading.getFirstChild() instanceof Link link) {
+                String path = link.getDestination();
+                if (path.startsWith("#")) {
+                    path = path.substring(1);
+                    TemplateMarkdownNode child = root.findByPath(path);
+                    if (child != null) {
+                        load(heading, child);
+                    }
+                }
 
-                String functionName = text.getLiteral();
-                TemplateMarkdownNode child = root.getChildren().get(functionName);
-                load(heading, child);
             }
         }
-
 
         private void load(Heading heading, TemplateMarkdownNode node) {
             Node sibling = heading.getNext();
@@ -137,18 +196,20 @@ public class DefaultTemplateFunctionPackage implements TemplateFunctionPackage {
 
                     String payload = fencedCodeBlock.getLiteral().trim();
                     String format = fencedCodeBlock.getInfo().trim();
-                    if (SchemaFormat.isSchema(format)) {
-                        if (SchemaFormat.INPUT_FENCE_CHAR.endsWith(fencedCodeBlock.getFenceCharacter())) {
-                            block.setInputSchemaFormat(format);
-                            block.setInputSchema(payload);
-                        } else if (SchemaFormat.OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
-                            block.setOutputSchemaFormat(format);
-                            block.setOutputSchema(payload);
-                        }
+
+                    if(SchemaFormat.OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
+                        System.out.println("---------------- " + payload);
+                        block.setOutputSchemaFormat(format);
+                        block.setOutputSchema(payload);
+
+                    } else if (SchemaFormat.isSchema(format)) {
+                        block.setInputSchemaFormat(format);
+                        block.setInputSchema(payload);
                     } else {
                         block.setTemplateFormat(format);
                         block.setTemplate(payload);
                     }
+
 
                 } else if (sibling instanceof HtmlBlock htmlBlock) {
                     node.getDescriptions().add(htmlBlock.getLiteral().trim());

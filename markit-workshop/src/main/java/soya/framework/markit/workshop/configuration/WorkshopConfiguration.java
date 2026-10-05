@@ -2,13 +2,11 @@ package soya.framework.markit.workshop.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sorya.framework.markita.Template;
-import sorya.framework.markita.TemplateBuilder;
-import sorya.framework.markita.TemplateEngine;
-import sorya.framework.markita.TemplateLocator;
+import sorya.framework.markita.*;
 import sorya.framework.markita.support.DefaultTemplate;
 import sorya.framework.markita.support.DefaultTemplateBuilder;
 import sorya.framework.markita.support.DefaultTemplateEngine;
+import sorya.framework.markita.support.DefaultTemplateFunctionInvoker;
 import soya.framework.markit.workshop.MarkitWorkshopApplication;
 
 import java.io.File;
@@ -90,6 +88,11 @@ public class WorkshopConfiguration {
                 return dir;
             }
         };
+    }
+
+    @Bean
+    public TemplateFunctionInvoker templateFunctionInvoker() {
+        return new DefaultTemplateFunctionInvoker();
     }
 
     @Bean

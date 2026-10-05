@@ -3,7 +3,6 @@ package sorya.framework.markita.support;
 public enum SchemaFormat {
     YAML, JSON, XML;
 
-
     static final String INPUT_FENCE_CHAR = "`";
     static final String OUTPUT_FENCE_CHAR = "~";
 
