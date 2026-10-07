@@ -13,10 +13,7 @@ import sorya.framework.markita.util.TextBuilder;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class DefaultTemplateFunctionPackage implements TemplateFunctionPackage {
     private static final String TEMPLATE;
@@ -73,8 +70,51 @@ public class DefaultTemplateFunctionPackage implements TemplateFunctionPackage {
         return functions.values().toArray(new TemplateFunction[0]);
     }
 
+    public TemplateMarkdownNode getRootMarkdownNode() {
+        return root;
+    }
+
     public TemplateFunction get(String functionName) {
         return functions.get(functionName);
+    }
+
+    public void addFunction(String name) {
+        List<String> list = new ArrayList<>();
+        Arrays.stream(metadata.getFunctions()).forEach(e -> {
+            if(!e.startsWith("[")) {
+                list.add(e);
+            }
+        });
+        list.add(name);
+        metadata.setFunctions(list.toArray(new String[0]));
+
+        TemplateMarkdownNode function = new TemplateMarkdownNode(name);
+        function.setTitle(name);
+        function.setTemplateBlock(new TemplateBlock());
+
+        root.addChild(function);
+    }
+
+    public void merge(DefaultTemplateFunctionPackage functionPackage) {
+        List<String> list = new ArrayList<>();
+        Arrays.stream(metadata.getFunctions()).forEach(e -> {
+            if(!e.startsWith("[")) {
+                list.add(e);
+            }
+        });
+
+        Arrays.stream(functionPackage.metadata.getFunctions()).forEach(e -> {
+            if(!e.startsWith("[")) {
+                list.add(e);
+            }
+        });
+
+        metadata.setFunctions(list.toArray(new String[0]));
+
+        functionPackage.root.getChildren().forEach((k, v) -> {
+            root.addChild(v);
+        });
+
     }
 
     @Override
@@ -154,8 +194,8 @@ public class DefaultTemplateFunctionPackage implements TemplateFunctionPackage {
                     });
                 }
             }
-
         }
+
 
         @Override
         public void visit(Heading heading) {
@@ -198,7 +238,6 @@ public class DefaultTemplateFunctionPackage implements TemplateFunctionPackage {
                     String format = fencedCodeBlock.getInfo().trim();
 
                     if(SchemaFormat.OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
-                        System.out.println("---------------- " + payload);
                         block.setOutputSchemaFormat(format);
                         block.setOutputSchema(payload);
 

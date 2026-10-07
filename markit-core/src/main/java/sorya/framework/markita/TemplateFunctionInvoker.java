@@ -1,5 +1,5 @@
 package sorya.framework.markita;
 
 public interface TemplateFunctionInvoker {
-    Object invoke(TemplateFunction function, Object input);
+    Object invoke(TemplateFunction function, String input);
 }

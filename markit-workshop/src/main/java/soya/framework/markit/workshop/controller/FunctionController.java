@@ -18,11 +18,13 @@ public class FunctionController {
     @Autowired
     FunctionService functionService;
 
+
+    // =================== Packages:
     @GetMapping(
             value = "/packages",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<List<String>> packages(@PathVariable String name) {
+    public ResponseEntity<List<String>> packages() {
         return ResponseEntity.ok(functionService.packageNames());
     }
 
@@ -44,6 +46,57 @@ public class FunctionController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // =================== Functions
+    @GetMapping(
+            value = "/{name}",
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> getFunction(@PathVariable String name) {
+        return ResponseEntity.ok(functionService.getFunction(name));
+    }
+
+    @PostMapping(
+            value = "/{name}",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> createFunction(@PathVariable String name,
+                                                 @RequestHeader(required = false, defaultValue = "freemarker") String templateFormat,
+                                                 @RequestHeader(required = false, defaultValue = "yaml") String schemaFormat,
+                                                 @RequestBody(required = false) String template) {
+        return ResponseEntity.ok(functionService.create(name, templateFormat, schemaFormat, template));
+    }
+
+    @PostMapping(
+            value = "/generate/{name}",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> generateFunction(@PathVariable String name,
+                                                   @RequestHeader(defaultValue = "freemarker") String templateFormat,
+                                                   @RequestHeader(defaultValue = "yaml") String schemaFormat,
+                                                   @RequestBody String markdown) {
+        return ResponseEntity.ok(functionService.generate(name, templateFormat, schemaFormat, markdown));
+    }
+
+    @PutMapping(
+            value = "/save-or-update",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> saveFunction(@RequestBody String markdown) {
+        return ResponseEntity.ok(functionService.saveOrUpdate(markdown));
+    }
+
+    @PostMapping(
+            value = "/invoke/{name}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> call(@PathVariable String name, @RequestBody String input) {
+        return ResponseEntity.ok(functionService.invoke(name, input));
     }
 
 }

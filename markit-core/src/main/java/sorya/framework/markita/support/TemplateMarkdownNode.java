@@ -128,7 +128,7 @@ public class TemplateMarkdownNode {
             builder.newLineWithCurrentIndents(templateBlock.getInputSchema());
             builder.newLineWithCurrentIndents(SchemaFormat.INPUT_FENCE_CHAR.repeat(3));
             builder.newLine();
-            builder.newLineWithCurrentIndents("Output Schema");
+            builder.newLineWithCurrentIndents("Output Schema (Optional)");
             builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3)).append(templateBlock.getOutputSchemaFormat());
             builder.newLineWithCurrentIndents(templateBlock.getOutputSchema());
             builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3));
