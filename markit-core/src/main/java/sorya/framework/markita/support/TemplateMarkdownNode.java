@@ -123,14 +123,23 @@ public class TemplateMarkdownNode {
             builder.newLineWithCurrentIndents(templateBlock.getTemplate());
             builder.newLineWithCurrentIndents("```");
             builder.newLine();
+
             builder.newLineWithCurrentIndents("Input Schema");
             builder.newLineWithCurrentIndents(SchemaFormat.INPUT_FENCE_CHAR.repeat(3)).append(templateBlock.getInputSchemaFormat());
             builder.newLineWithCurrentIndents(templateBlock.getInputSchema());
             builder.newLineWithCurrentIndents(SchemaFormat.INPUT_FENCE_CHAR.repeat(3));
             builder.newLine();
-            builder.newLineWithCurrentIndents("Output Schema (Optional)");
-            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3)).append(templateBlock.getOutputSchemaFormat());
-            builder.newLineWithCurrentIndents(templateBlock.getOutputSchema());
+
+            builder.newLineWithCurrentIndents("Sample Input (Optional)");
+            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3))
+                    .append(templateBlock.getSampleInputFormat()).append(" input");
+            builder.newLineWithCurrentIndents(templateBlock.getSampleInput());
+            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3));
+
+            builder.newLineWithCurrentIndents("Sample Output (Optional)");
+            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3))
+                    .append(templateBlock.getSampleOutputFormat()).append(" output");
+            builder.newLineWithCurrentIndents(templateBlock.getSampleOutput());
             builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3));
         }
 

@@ -9,6 +9,7 @@ import soya.framework.markit.workshop.service.FunctionService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/function")
@@ -17,7 +18,6 @@ public class FunctionController {
 
     @Autowired
     FunctionService functionService;
-
 
     // =================== Packages:
     @GetMapping(
@@ -46,6 +46,18 @@ public class FunctionController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @PostMapping(
+            value = "/package/generate/{name}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> generatePackage(@PathVariable String name,
+                                                   @RequestHeader(defaultValue = "freemarker") String templateFormat,
+                                                   @RequestHeader(defaultValue = "yaml") String schemaFormat,
+                                                   @RequestBody Map<String, String> requirements) {
+        return ResponseEntity.ok(functionService.generatePackage(name, templateFormat, schemaFormat, requirements));
     }
 
     // =================== Functions
@@ -77,17 +89,30 @@ public class FunctionController {
     public ResponseEntity<String> generateFunction(@PathVariable String name,
                                                    @RequestHeader(defaultValue = "freemarker") String templateFormat,
                                                    @RequestHeader(defaultValue = "yaml") String schemaFormat,
-                                                   @RequestBody String markdown) {
-        return ResponseEntity.ok(functionService.generate(name, templateFormat, schemaFormat, markdown));
+                                                   @RequestBody String requirement) {
+        return ResponseEntity.ok(functionService.generateFunction(name, templateFormat, schemaFormat, requirement));
     }
 
     @PutMapping(
-            value = "/save-or-update",
+            value = "/create-or-merge",
             consumes = MediaType.TEXT_PLAIN_VALUE,
             produces = MediaType.TEXT_PLAIN_VALUE
     )
     public ResponseEntity<String> saveFunction(@RequestBody String markdown) {
-        return ResponseEntity.ok(functionService.saveOrUpdate(markdown));
+        try {
+            return ResponseEntity.ok(functionService.createOrMerge(markdown));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PostMapping(
+            value = "/verify/{name}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> verifyFunction(@PathVariable String name, @RequestBody(required = false) String input) {
+        return ResponseEntity.ok(functionService.verifyFunction(name, input));
     }
 
     @PostMapping(
@@ -95,7 +120,7 @@ public class FunctionController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.TEXT_PLAIN_VALUE
     )
-    public ResponseEntity<String> call(@PathVariable String name, @RequestBody String input) {
+    public ResponseEntity<String> invokeFunction(@PathVariable String name, @RequestBody(required = false) String input) {
         return ResponseEntity.ok(functionService.invoke(name, input));
     }
 

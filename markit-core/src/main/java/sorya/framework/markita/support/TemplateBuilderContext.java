@@ -53,7 +53,8 @@ public class TemplateBuilderContext {
                         public void visit(FencedCodeBlock fencedCodeBlock) {
                             String format = fencedCodeBlock.getInfo();
                             String payload = fencedCodeBlock.getLiteral();
-                            if (!SchemaFormat.isSchema(format)) {
+
+                            /*if (!SchemaFormat.isSchema(format)) {
                                 TEMPLATE_BLOCK_TEMPLATE.setTemplateFormat(format);
                                 TEMPLATE_BLOCK_TEMPLATE.setTemplate(payload);
                             } else if (SchemaFormat.INPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
@@ -62,7 +63,7 @@ public class TemplateBuilderContext {
                             } else if ((SchemaFormat.OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter()))) {
                                 TEMPLATE_BLOCK_TEMPLATE.setOutputSchemaFormat(format);
                                 TEMPLATE_BLOCK_TEMPLATE.setOutputSchema(payload);
-                            }
+                            }*/
                         }
                     });
 
@@ -130,8 +131,8 @@ public class TemplateBuilderContext {
         block.setInputSchemaFormat(TEMPLATE_BLOCK_TEMPLATE.getInputSchemaFormat());
         block.setInputSchema(TEMPLATE_BLOCK_TEMPLATE.getInputSchema());
 
-        block.setOutputSchemaFormat(TEMPLATE_BLOCK_TEMPLATE.getOutputSchemaFormat());
-        block.setOutputSchema(TEMPLATE_BLOCK_TEMPLATE.getOutputSchema());
+        /*block.setOutputSchemaFormat(TEMPLATE_BLOCK_TEMPLATE.getOutputSchemaFormat());
+        block.setOutputSchema(TEMPLATE_BLOCK_TEMPLATE.getOutputSchema());*/
         return block;
     }
 
@@ -295,8 +296,8 @@ public class TemplateBuilderContext {
                             block.setInputSchemaFormat(format);
                             block.setInputSchema(payload);
                         } else if (SchemaFormat.OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
-                            block.setOutputSchemaFormat(format);
-                            block.setOutputSchema(payload);
+                            /*block.setOutputSchemaFormat(format);
+                            block.setOutputSchema(payload);*/
                         }
                     } else {
                         block.setTemplateFormat(format);

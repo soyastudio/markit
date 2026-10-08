@@ -238,8 +238,17 @@ public class DefaultTemplateFunctionPackage implements TemplateFunctionPackage {
                     String format = fencedCodeBlock.getInfo().trim();
 
                     if(SchemaFormat.OUTPUT_FENCE_CHAR.equals(fencedCodeBlock.getFenceCharacter())) {
-                        block.setOutputSchemaFormat(format);
-                        block.setOutputSchema(payload);
+                        if(format.toLowerCase().contains("output")) {
+                            block.setSampleOutput(payload);
+                            block.setSampleOutputFormat(fencedCodeBlock.getInfo().replace("output", "").trim());
+                        } else {
+                            block.setSampleInput(payload);
+                            if(format.contains("input")) {
+                                block.setSampleInputFormat(format.replace("input", "").trim());
+                            } else {
+                                block.setSampleInputFormat(format);
+                            }
+                        }
 
                     } else if (SchemaFormat.isSchema(format)) {
                         block.setInputSchemaFormat(format);

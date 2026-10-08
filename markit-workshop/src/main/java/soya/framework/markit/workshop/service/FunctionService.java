@@ -7,6 +7,7 @@ import sorya.framework.markita.TemplateFunctionInvoker;
 import sorya.framework.markita.TemplateFunctionPackage;
 import sorya.framework.markita.support.DefaultTemplateFunctionPackage;
 import sorya.framework.markita.support.FunctionName;
+import sorya.framework.markita.support.TemplateBlock;
 import sorya.framework.markita.support.TemplateMarkdownNode;
 import sorya.framework.markita.util.TextBuilder;
 import soya.framework.markit.workshop.configuration.Workspace;
@@ -101,15 +102,53 @@ public class FunctionService {
         return builder.toString();
     }
 
+    public String verifyFunction(String fullName, String input) {
+        FunctionName name = new FunctionName(fullName);
+        DefaultTemplateFunctionPackage fp = pkgs.get(name.getPackageName());
+
+        String json = input;
+        if(input == null) {
+            TemplateMarkdownNode node = fp.getRootMarkdownNode().getChildren().get(name.getFunctionName());
+            json = node.getTemplateBlock().getSampleInput();
+        }
+
+        Object output = templateFunctionInvoker.invoke(fp.get(name.getFunctionName()), json);
+
+        TextBuilder builder = TextBuilder.builder("## Verification for Function: " + fullName);
+
+        builder.newLineWithCurrentIndents("### Input");
+        builder.newLineWithCurrentIndents("```json input");
+        builder.newLineWithCurrentIndents().append(json);
+        builder.newLineWithCurrentIndents("```");
+        builder.newLine();
+
+        builder.newLineWithCurrentIndents("### output");
+        builder.newLineWithCurrentIndents("```");
+        builder.newLineWithCurrentIndents().append(output);
+        builder.newLineWithCurrentIndents("```");
+
+        return builder.toString();
+    }
+
     public String create(String fullName, String templateFormate, String schemaFormat, String template) {
         FunctionName name = new FunctionName(fullName);
         DefaultTemplateFunctionPackage pkg = DefaultTemplateFunctionPackage.newInstance(name.getPackageName());
         pkg.addFunction(name.getFunctionName());
 
+        TemplateBlock block = pkg.getRootMarkdownNode().getChildren().get(name.getFunctionName()).getTemplateBlock();
+        block.setTemplateFormat(templateFormate);
+        block.setTemplate(template);
+        block.setInputSchemaFormat(schemaFormat);
+
         return pkg.toString();
     }
 
-    public String saveOrUpdate(String markdown) {
+    private String getSchema(String schema, String template) {
+        return "";
+    }
+
+
+    public String createOrMerge(String markdown) throws IOException {
         String result = markdown;
         DefaultTemplateFunctionPackage pkg = new DefaultTemplateFunctionPackage(markdown);
         if (pkgs.containsKey(pkg.getName())) {
@@ -117,9 +156,15 @@ public class FunctionService {
             functionPackage.merge(pkg);
             result = functionPackage.toString();
         } else {
-
+            result = pkg.toString();
         }
 
+        File worksheet = new File(functionDir, packageFileName(pkg.getName()));
+        if(!worksheet.exists()) {
+            worksheet.createNewFile();
+        }
+
+        Files.writeString(worksheet.toPath(), markdown);
         return result;
     }
 
@@ -135,10 +180,20 @@ public class FunctionService {
 
     }
 
-    public String generate(String fullName, String templateFormat, String schemaFormat, String requirement) {
-        System.out.println("============== template format: " + templateFormat);
-        System.out.println("============== schema format: " + schemaFormat);
+    // AI
+    public String generateFunction(String fullName, String templateFormat, String schemaFormat, String requirement) {
+        System.out.println("============== todo: generateFunction");
 
-        return "generate using AI.";
+        return "todo: generate using AI.";
+    }
+
+    public String generatePackage(String packageName, String templateFormat, String schemaFormat, Map<String, String> requirements) {
+        System.out.println("============== todo: generatePackage");
+
+        return "todo: generate packages using AI.";
+    }
+
+    private String createPrompt( String templateFormat, String schemaFormat, String requirement) {
+        return requirement;
     }
 }

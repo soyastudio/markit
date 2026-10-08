@@ -16,6 +16,7 @@ public class TemplateBlock {
             .newLineWithCurrentIndents("type: \"string\"")
             .indentLeft()
             .indentLeft().toString();
+    public static final String DEFAULT_INPUT_FORMAT = "json";
 
     private String templateFormat = DEFAULT_TEMPLATE_FORMAT;
     private String template = DEFAULT_TEMPLATE_CONTENTS;
@@ -23,8 +24,11 @@ public class TemplateBlock {
     private String inputSchemaFormat = DEFAULT_INPUT_SCHEMA_FORMAT;
     private String inputSchema = DEFAULT_INPUT_SCHEMA;
 
-    private String outputSchemaFormat;
-    private String outputSchema;
+    private String sampleInputFormat = DEFAULT_INPUT_FORMAT;
+    private String sampleInput;
+
+    private String sampleOutputFormat;
+    private String sampleOutput;
 
     public String getTemplateFormat() {
         return templateFormat;
@@ -58,19 +62,39 @@ public class TemplateBlock {
         this.inputSchema = inputSchema;
     }
 
-    public String getOutputSchemaFormat() {
-        return outputSchemaFormat;
+    public String getSampleInputFormat() {
+        if(sampleInputFormat != null && !sampleInputFormat.trim().isEmpty()) {
+            return sampleInputFormat;
+        } else {
+            return DEFAULT_INPUT_FORMAT;
+        }
     }
 
-    public void setOutputSchemaFormat(String outputSchemaFormat) {
-        this.outputSchemaFormat = outputSchemaFormat;
+    public void setSampleInputFormat(String sampleInputFormat) {
+        this.sampleInputFormat = sampleInputFormat;
     }
 
-    public String getOutputSchema() {
-        return outputSchema;
+    public String getSampleInput() {
+        return sampleInput;
     }
 
-    public void setOutputSchema(String outputSchema) {
-        this.outputSchema = outputSchema;
+    public void setSampleInput(String sampleInput) {
+        this.sampleInput = sampleInput;
+    }
+
+    public String getSampleOutputFormat() {
+        return sampleOutputFormat;
+    }
+
+    public void setSampleOutputFormat(String sampleOutputFormat) {
+        this.sampleOutputFormat = sampleOutputFormat;
+    }
+
+    public String getSampleOutput() {
+        return sampleOutput;
+    }
+
+    public void setSampleOutput(String sampleOutput) {
+        this.sampleOutput = sampleOutput;
     }
 }
