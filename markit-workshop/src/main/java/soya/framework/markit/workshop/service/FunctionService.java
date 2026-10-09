@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sorya.framework.markita.TemplateFunction;
 import sorya.framework.markita.TemplateFunctionInvoker;
-import sorya.framework.markita.TemplateFunctionPackage;
 import sorya.framework.markita.support.DefaultTemplateFunctionPackage;
 import sorya.framework.markita.support.FunctionName;
 import sorya.framework.markita.support.TemplateBlock;
@@ -17,6 +16,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Service
@@ -66,16 +67,11 @@ public class FunctionService {
         return null;
     }
 
-    private String packageFileName(String packageName) {
-        return packageName.replace(".", "-") + ".md";
-    }
-
     public String build(String packageName) throws IOException {
         File worksheet = new File(functionDir, packageFileName(packageName));
 
         String markdown;
-        if (!worksheet.exists()) {
-            worksheet.createNewFile();
+        if (!worksheet.exists() && worksheet.createNewFile()) {
             markdown = DefaultTemplateFunctionPackage.newInstance(packageName).toString();
         } else {
             markdown = Files.readString(worksheet.toPath());
@@ -140,13 +136,24 @@ public class FunctionService {
         block.setTemplate(template);
         block.setInputSchemaFormat(schemaFormat);
 
+        getSchema(schemaFormat, template);
+
         return pkg.toString();
     }
 
-    private String getSchema(String schema, String template) {
-        return "";
-    }
+    public String verifyTemplate(String markdown) {
+        DefaultTemplateFunctionPackage pkg = new DefaultTemplateFunctionPackage(markdown);
+        try {
+            TemplateFunction function = pkg.getFunctions()[0];
+            TemplateBlock block = pkg.getRootMarkdownNode().getChildren().get(function.getName()).getTemplateBlock();
+            String input = block.getSampleInput();
+            return (String)templateFunctionInvoker.invoke(function, input);
 
+        } catch (NullPointerException e) {
+            return "Illegal Format.";
+
+        }
+    }
 
     public String createOrMerge(String markdown) throws IOException {
         String result = markdown;
@@ -180,7 +187,7 @@ public class FunctionService {
 
     }
 
-    // AI
+    // =========== methods for chatbots
     public String generateFunction(String fullName, String templateFormat, String schemaFormat, String requirement) {
         System.out.println("============== todo: generateFunction");
 
@@ -191,6 +198,17 @@ public class FunctionService {
         System.out.println("============== todo: generatePackage");
 
         return "todo: generate packages using AI.";
+    }
+
+    // =========== Utility methods:
+    private String packageFileName(String packageName) {
+        return packageName.replace(".", "-") + ".md";
+    }
+
+    private String getSchema(String schemaFormat, String templateContent) {
+
+
+        return "";
     }
 
     private String createPrompt( String templateFormat, String schemaFormat, String requirement) {

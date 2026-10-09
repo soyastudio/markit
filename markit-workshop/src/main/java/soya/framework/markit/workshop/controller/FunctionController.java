@@ -54,9 +54,9 @@ public class FunctionController {
             produces = MediaType.TEXT_PLAIN_VALUE
     )
     public ResponseEntity<String> generatePackage(@PathVariable String name,
-                                                   @RequestHeader(defaultValue = "freemarker") String templateFormat,
-                                                   @RequestHeader(defaultValue = "yaml") String schemaFormat,
-                                                   @RequestBody Map<String, String> requirements) {
+                                                  @RequestHeader(defaultValue = "freemarker") String templateFormat,
+                                                  @RequestHeader(defaultValue = "yaml") String schemaFormat,
+                                                  @RequestBody Map<String, String> requirements) {
         return ResponseEntity.ok(functionService.generatePackage(name, templateFormat, schemaFormat, requirements));
     }
 
@@ -79,6 +79,15 @@ public class FunctionController {
                                                  @RequestHeader(required = false, defaultValue = "yaml") String schemaFormat,
                                                  @RequestBody(required = false) String template) {
         return ResponseEntity.ok(functionService.create(name, templateFormat, schemaFormat, template));
+    }
+
+    @PostMapping(
+            value = "/verify-template",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> verifyTemplate(@RequestBody String markdown) {
+        return ResponseEntity.ok(functionService.verifyTemplate(markdown));
     }
 
     @PostMapping(
