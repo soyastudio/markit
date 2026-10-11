@@ -2,13 +2,14 @@ package sorya.framework.markita.support;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import sorya.framework.markita.*;
+import sorya.framework.markita.TemplateExecutor;
+import sorya.framework.markita.TemplateFunction;
+import sorya.framework.markita.TemplateFunctionInvoker;
+import sorya.framework.markita.TemplateSchema;
 import sorya.framework.markita.templates.FreemarkerExecutor;
 import sorya.framework.markita.templates.HandlebarsExecutor;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DefaultTemplateFunctionInvoker implements TemplateFunctionInvoker {
@@ -37,12 +38,7 @@ public class DefaultTemplateFunctionInvoker implements TemplateFunctionInvoker {
             throw new NullPointerException("Cannot find template executor for: " + function.getTemplateFormat());
         }
 
-        Object result = executor.execute(function.getTemplate(), params);
-        if (function.getResolver() != null) {
-            result = function.getResolver().resolve(result);
-        }
-
-        return result;
+        return executor.execute(function.getTemplate(), params);
     }
 
     protected Map<String, Object> parseInput(String input, TemplateSchema schema) {
