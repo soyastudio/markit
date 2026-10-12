@@ -1,4 +1,7 @@
 package sorya.framework.markita;
 
-public interface TemplateRenderer extends TemplateProcessor {
+public interface TemplateRenderer {
+    TemplateFunction getTemplate();
+
+    TemplateFunctionAssignment getAssignment();
 }

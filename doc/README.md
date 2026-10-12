@@ -2,6 +2,16 @@
 
 ## What Is a Template
 
+### 1. Simple Template as Functions
+
+### 2. Introduce Annotators and Multiple Templates Working Together
+
+### 3. Template Pipelines
+
+### 4. Orchestration: Multiple Template Pipelines Working Together
+
+### 5. AI Powered
+
 ## Simple Template Engine
 
 ### AI 
