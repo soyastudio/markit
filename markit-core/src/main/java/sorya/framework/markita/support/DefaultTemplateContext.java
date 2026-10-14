@@ -6,7 +6,6 @@ import org.commonmark.ext.front.matter.YamlFrontMatterNode;
 import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
 import org.yaml.snakeyaml.Yaml;
-import sorya.framework.markita.TemplateContextAttribute;
 import sorya.framework.markita.TemplateContext;
 import sorya.framework.markita.util.TextBuilder;
 

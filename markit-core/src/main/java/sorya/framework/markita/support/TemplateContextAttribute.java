@@ -1,9 +1,11 @@
-package sorya.framework.markita;
+package sorya.framework.markita.support;
+
+import sorya.framework.markita.TemplateAnnotation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TemplateContextAttribute implements TemplateComponent {
+public class TemplateContextAttribute implements TemplateAnnotation, MarkdownTemplateComponent {
 
     private final String name;
     private final String title;

@@ -1,7 +1,5 @@
 package sorya.framework.markita.support;
 
-import sorya.framework.markita.TemplateContextAttribute;
-
 public class DefaultTemplateAnnotationResolver implements TemplateAnnotationResolver {
 
     @Override

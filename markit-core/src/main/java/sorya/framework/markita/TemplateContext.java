@@ -1,5 +1,7 @@
 package sorya.framework.markita;
 
+import sorya.framework.markita.support.TemplateContextAttribute;
+
 import java.util.Map;
 
 public interface TemplateContext {
