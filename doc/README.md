@@ -10,9 +10,7 @@ config:
 ---
 flowchart LR
     Input
-    TemplateFunction["`**Template Function**
-    1. Schema
-    2. Template`"]
+    TemplateFunction["Template Function"]
     Output
     Input --> TemplateFunction --> Output
 ```
