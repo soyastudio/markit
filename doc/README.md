@@ -55,8 +55,7 @@ flowchart LR
 - MCP server is build on the top of REST API for agent tools
 - AI Agents for generating template packages/functions through reading different resources, save to function repositories, and build into RAG Vector DB and LLM Wiki System
 
-### 2. Introduce Annotators and Multiple Templates Working Together
-**Introduce Annotators into the Scene**
+### 2. Introduce Annotators into the Scene
 ```mermaid
 ---
 config:
@@ -64,14 +63,14 @@ config:
 ---
 flowchart LR
     Input
-    TemplateAnnotator
-    FunctionAssignment
-    TemplateFunction
+    Annotator
+    Assignment
+    Function
     Output
-    Input --> TemplateAnnotator --> FunctionAssignment--> TemplateFunction --> Output
+    Input --> Annotator --> Assignment--> Function --> Output
 ```
 
-**Multiple Outputs**
+### 3. Multiple Template Functions and Outputs
 ```mermaid
 ---
 config:
@@ -79,29 +78,29 @@ config:
 ---
 flowchart LR
     Input
-    TemplateAnnotators["`Annotator_0
+    Annotators["`Annotator_0
     Annotator_1
     Annotator_2
     ..
     Annotator_n`"]
-    FunctionAssignment_0
-    TemplateFunction_0
+    Assignment_0
+    Function_0
     Output_0
-    FunctionAssignment_1
-    TemplateFunction_1
+    Assignment_1
+    Function_1
     Output_1
-    FunctionAssignment_m
-    TemplateFunction_m
+    Assignment_m
+    Function_m
     Output_m
-    Input --> TemplateAnnotators
-    TemplateAnnotators --> FunctionAssignment_0--> TemplateFunction_0 --> Output_0
-    TemplateAnnotators --> FunctionAssignment_1--> TemplateFunction_1 --> Output_1
-    TemplateAnnotators --> FunctionAssignment_m--> TemplateFunction_m --> Output_m
+    Input --> Annotators
+    Annotators --> Assignment_0--> Function_0 --> Output_0
+    Annotators --> Assignment_1--> Function_1 --> Output_1
+    Annotators --> Assignment_m--> Function_m --> Output_m
         
     
 ```
 
-### 3. Template Pipelines
+### 4. Template Pipelines
 ```mermaid
 ---
 config:
