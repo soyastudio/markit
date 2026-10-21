@@ -1,6 +1,6 @@
-# Complex Template Engine
+# Complex Template Platform
 
-## What Is a Template
+## What Is a Complex Template
 
 ### 1. Simple Template as Functions
 ```mermaid
@@ -10,8 +10,8 @@ config:
 ---
 flowchart LR
     Input
-    TemplateFunction["`Template Schema
-    Template Contents`"]
+    TemplateFunction["`Schema
+    Template`"]
     Output
     Input --> TemplateFunction --> Output
 ```
@@ -24,7 +24,7 @@ flowchart LR
 - JavaScript
 - Other Scripts
 
-**Template Schema**:
+**Template Schema Type**:
 - JsonSchema
 - Yaml
 - XSD
@@ -35,22 +35,23 @@ flowchart LR
 - xml
 - structured-markdown
 
-**Template Output**
-- Text based output: doc, code(sql, python, java...)
+**Template Output Type**
+- Text based output: doc, code(sql, python, java...), story
 - Diagram
 - Multimedia: image, video, audio...
 - AI Prompt
 
 **Template Packages**
-- A template package group a set of related template functions
+- A template package group a set of related template functions of same domain
 - A template package saved as a markdown file in special format
 - Template packages can be saved and indexed as long-term memory: Template Repository
 
-**How to Create Template Functions/Packages**
+**How to Create and Manage Template Functions/Packages**
 - Manually create based on sample works
-- Though AI Chatbot
+- Though AI Chatbot through prompt engineering
 - Training from existing resources: books, user guides, existing works...
-- REST API for creating, updating, and managing template functions/packages, including generating template functions/packages through chatbot and prompt templates.
+- REST API for creating, updating, search and managing template functions/packages, including generating template functions/packages through chatbot and prompt templates.
+- MCP server is build on the top of REST API for agent tools
 - AI Agents for generating template packages/functions through reading different resources, save to function repositories, and build into RAG Vector DB and LLM Wiki System
 
 ### 2. Introduce Annotators and Multiple Templates Working Together
@@ -100,6 +101,32 @@ flowchart LR
 ```
 
 ### 3. Template Pipelines
+```mermaid
+---
+config:
+  htmlLabels: false
+---
+sequenceDiagram
+  autonumber
+  actor Executor
+  participant Session as Pipeline Session
+  participant Annotators
+  participant Renderers
+  Executor->>Session: Initialize Input Values
+  Executor->>Session: Rerun from Last Session with New States
+  Session->>Annotators: Set Default Value with Template
+  Executor->>Annotators: Adjust Payload Value
+  activate Annotators
+  Annotators-->>Session: Update Annotations
+  Session->>Renderers: Evaluate Function Assignment
+  Renderers-->>Session: Approved or Not Completed
+  deactivate Annotators
+  Executor-->>Renderers: Adjust Function Assignment Values
+  Renderers-->>Executor: Render Output
+  Note over Executor,Renderers: Pipeline Session can be rerun from change point.
+
+```
+
 **Template Pipeline**
 - Template Pipeline Session: 
 - Template Input Parameters: 
@@ -137,7 +164,13 @@ flowchart LR
 
 ### 5. AI Powered
 
-## Simple Template Engine
+## Template Functions and Packages
+
+### Template Function
+
+### Template Package
+
+
 
 ### AI 
 - Generate Template Function with AI
