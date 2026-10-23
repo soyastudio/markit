@@ -1,0 +1,43 @@
+{
+  "name": "Singleton",
+  "templateFormat": "freemarker",
+  "template": "\u003c#if packageName?has_content\u003e\npackage ${packageName};\n\u003c/#if\u003e\n\n/**\n * ${className} - Singleton class.\n\u003c#if description?has_content\u003e\n * \u003cp\u003e${description}\u003c/p\u003e\n\u003c/#if\u003e\n * \n * \u003cp\u003eThis implementation uses Double-Checked Locking to ensure thread safety \n * while minimizing the performance cost of synchronization.\u003c/p\u003e\n *\n * @author ${author!\"Anonymous\"}\n * @since ${date!\"2026-10-03\"}\n */\npublic class ${className} {\n\n    // The volatile keyword ensures that multiple threads handle the instance variable correctly\n    private static volatile ${className} instance;\n\n    // Private constructor prevents instantiation from other classes\n    private ${className}() {\n    }\n\n    /**\n     * Public static method for getting the singleton instance.\n     *\n     * @return the singleton instance of ${className}\n     */\n    public static ${className} getInstance() {\n        if (instance \u003d\u003d null) {\n            synchronized (${className}.class) {\n                if (instance \u003d\u003d null) {\n                    instance \u003d new ${className}();\n                }\n            }\n        }\n        return instance;\n    }\n}\n",
+  "schema": {
+    "params": {
+      "packageName": {
+        "type": "string",
+        "description": "The Java package name for the generated class.",
+        "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$",
+        "examples": [
+          "com.example.service",
+          "org.myapp.core.utils"
+        ]
+      },
+      "className": {
+        "type": "string",
+        "description": "The name of the Singleton class. Must follow Java PascalCase naming conventions.",
+        "pattern": "^[A-Z][a-zA-Z0-9]*$",
+        "examples": [
+          "DatabaseConnectionManager",
+          "AppConfig"
+        ]
+      },
+      "description": {
+        "type": "string",
+        "description": "A brief description of the Singleton\u0027s purpose, injected into the Javadoc.",
+        "default": "A thread-safe singleton class."
+      },
+      "author": {
+        "type": "string",
+        "description": "The author of the generated class.",
+        "default": "Anonymous"
+      },
+      "creationDate": {
+        "type": "string",
+        "description": "The creation date of the class, formatted as YYYY-MM-DD.",
+        "format": "date",
+        "default": "2026-10-06"
+      }
+    }
+  }
+}

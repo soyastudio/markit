@@ -3,10 +3,7 @@ package soya.framework.markit.workshop.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import sorya.framework.markita.*;
-import sorya.framework.markita.support.DefaultTemplate;
-import sorya.framework.markita.support.DefaultTemplateBuilder;
-import sorya.framework.markita.support.DefaultTemplateEngine;
-import sorya.framework.markita.support.DefaultTemplateFunctionInvoker;
+import sorya.framework.markita.support.*;
 import soya.framework.markit.workshop.MarkitWorkshopApplication;
 
 import java.io.File;
@@ -60,8 +57,8 @@ public class WorkshopConfiguration {
             }
 
             @Override
-            public File getTemplateDir() {
-                File dir = new File(WORKSPACE_HOME, "templates");
+            public File getPipelineDir() {
+                File dir = new File(WORKSPACE_HOME, "pipelines");
                 if (!dir.exists()) {
                     dir.mkdir();
                 }
@@ -96,31 +93,26 @@ public class WorkshopConfiguration {
     }
 
     @Bean
-    public TemplateLocator templateLocator(Workspace workspace) {
-        return new DefaultTemplateLocator(workspace);
+    public TemplatePipelineLocator templateLocator(Workspace workspace) {
+        return new DefaultTemplatePipelineLocator(workspace);
     }
 
     @Bean
-    public TemplateEngine templateEngine(TemplateLocator locator) {
-        return new DefaultTemplateEngine(locator);
+    public TemplatePipelineEngine templateEngine(TemplatePipelineLocator locator) {
+        return new DefaultTemplatePipelineEngine(locator);
     }
 
-    @Bean
-    public TemplateBuilder templateBuilder() {
-        return new DefaultTemplateBuilder();
-    }
+    static class DefaultTemplatePipelineLocator implements TemplatePipelineLocator {
+        private final Map<String, TemplatePipeline> pipelines = new HashMap<>();
 
-    static class DefaultTemplateLocator implements TemplateLocator {
-        private final Map<String, Template> templates = new HashMap<>();
-
-        DefaultTemplateLocator(Workspace workspace) {
-            Path path = Paths.get(workspace.getTemplateDir().toURI());
+        DefaultTemplatePipelineLocator(Workspace workspace) {
+            Path path = workspace.getPipelineDir().toPath();
             try (Stream<Path> stream = Files.walk(path)) {
                 stream.filter(Files::isRegularFile) // Finds only files, not directories
                         .forEach(e -> {
                             try {
-                                Template template = new DefaultTemplate(Files.readString(e));
-                                templates.put(template.getName(), template);
+                                TemplatePipeline pipeline = new TemplatePipelineMarkdown(Files.readString(e));
+                                pipelines.put(pipeline.getName(), pipeline);
                             } catch (IOException ex) {
                                 throw new RuntimeException(ex);
                             }
@@ -132,11 +124,11 @@ public class WorkshopConfiguration {
         }
 
         @Override
-        public Template getTemplate(String name) throws TemplateNotFoundException {
-            if(templates.containsKey(name)) {
-                return templates.get(name);
+        public TemplatePipeline getTemplatePipeline(String name) throws TemplatePipelineNotFoundException {
+            if (pipelines.containsKey(name)) {
+                return pipelines.get(name);
             }
-            throw new TemplateNotFoundException(name);
+            throw new TemplatePipelineNotFoundException(name);
         }
     }
 }

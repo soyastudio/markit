@@ -1,6 +1,6 @@
 package sorya.framework.markita;
 
-public interface TemplateEngine {
+public interface TemplatePipelineEngine {
 
     String create(String id);
 

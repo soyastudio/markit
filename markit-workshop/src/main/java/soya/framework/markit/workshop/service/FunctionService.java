@@ -1,13 +1,12 @@
 package soya.framework.markit.workshop.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sorya.framework.markita.TemplateFunction;
 import sorya.framework.markita.TemplateFunctionInvoker;
-import sorya.framework.markita.support.DefaultTemplateFunctionPackage;
-import sorya.framework.markita.support.FunctionName;
-import sorya.framework.markita.support.TemplateBlock;
-import sorya.framework.markita.support.TemplateMarkdownNode;
+import sorya.framework.markita.support.*;
 import sorya.framework.markita.util.TextBuilder;
 import soya.framework.markit.workshop.configuration.Workspace;
 
@@ -16,18 +15,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Service
 public class FunctionService {
+    private static Logger logger = LoggerFactory.getLogger(FunctionService.class);
 
     @Autowired
     private TemplateFunctionInvoker templateFunctionInvoker;
 
     private final File functionDir;
-    private final Map<String, DefaultTemplateFunctionPackage> pkgs = new HashMap<>();
+    private final Map<String, TemplatePackageMarkdown> pkgs = new HashMap<>();
 
     public FunctionService(Workspace workspace) {
         this.functionDir = workspace.getFunctionDir();
@@ -37,7 +35,7 @@ public class FunctionService {
                     .forEach(e -> {
                         try {
                             String markdown = Files.readString(e);
-                            DefaultTemplateFunctionPackage functionPackage = new DefaultTemplateFunctionPackage(markdown);
+                            TemplatePackageMarkdown functionPackage = new TemplatePackageMarkdown(markdown);
                             if (functionPackage.getName() != null) {
                                 pkgs.put(functionPackage.getName(), functionPackage);
                             }
@@ -50,6 +48,39 @@ public class FunctionService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // =========== methods for raw template:
+    public String create(String fullName, String templateFormate, String template) {
+        logger.info("createTemplateFunction...");
+        FunctionName name = new FunctionName(fullName);
+        TemplatePackageMarkdown pkg = TemplatePackageMarkdown.newInstance(name.getPackageName());
+        pkg.addFunction(name.getFunctionName());
+
+        TemplateMarkdownNode node = pkg.getFunctionNode(name.getFunctionName());
+        node.setTitle(name.getFunctionName());
+        FunctionDefinition definition = (FunctionDefinition) pkg.getFunctionNode(name.getFunctionName()).getComponentDefinition();
+        definition.setTemplateElement(new TemplateElement(templateFormate, template));
+
+        logger.warn("TODO: add logic for generate schema from template!!!");
+
+        return pkg.toString();
+    }
+
+    public String verifyTemplate(String markdown) {
+        logger.info("verifyTemplate...");
+        /*DefaultTemplateFunctionPackage pkg = new DefaultTemplateFunctionPackage(markdown);
+        try {
+            TemplateFunction function = pkg.getFunctions()[0];
+            TemplateBlock block = pkg.getRootMarkdownNode().getChildren().get(function.getName()).getTemplateBlock();
+            String input = block.getSampleInput();
+            return (String)templateFunctionInvoker.invoke(function, input);
+
+        } catch (NullPointerException e) {
+            return "Illegal Format.";
+
+        }*/
+        return null;
     }
 
     // =========== methods for function packages:
@@ -72,14 +103,14 @@ public class FunctionService {
 
         String markdown;
         if (!worksheet.exists() && worksheet.createNewFile()) {
-            markdown = DefaultTemplateFunctionPackage.newInstance(packageName).toString();
+            markdown = TemplatePackageMarkdown.newInstance(packageName).toString();
         } else {
             markdown = Files.readString(worksheet.toPath());
-            DefaultTemplateFunctionPackage fp = new DefaultTemplateFunctionPackage(markdown);
+            TemplatePackageMarkdown fp = new TemplatePackageMarkdown(markdown);
             if (fp.getName() != null && fp.getName().equals(packageName)) {
                 markdown = fp.toString();
             } else {
-                markdown = DefaultTemplateFunctionPackage.newInstance(packageName).toString();
+                markdown = TemplatePackageMarkdown.newInstance(packageName).toString();
             }
         }
 
@@ -90,76 +121,24 @@ public class FunctionService {
     // =========== methods for functions:
     public String getFunction(String fullName) {
         FunctionName name = new FunctionName(fullName);
-        DefaultTemplateFunctionPackage fp = pkgs.get(name.getPackageName());
-        TemplateMarkdownNode node = fp.getRootMarkdownNode().getChildren().get(name.getFunctionName());
+        TemplatePackageMarkdown fp = pkgs.get(name.getPackageName());
+
+        TemplateMarkdownNode node = fp.getFunctionNode(name.getFunctionName());
+
         TextBuilder builder = TextBuilder.builder();
         node.toMarkdown(builder);
-
         return builder.toString();
     }
 
     public String verifyFunction(String fullName, String input) {
-        FunctionName name = new FunctionName(fullName);
-        DefaultTemplateFunctionPackage fp = pkgs.get(name.getPackageName());
-
-        String json = input;
-        if(input == null) {
-            TemplateMarkdownNode node = fp.getRootMarkdownNode().getChildren().get(name.getFunctionName());
-            json = node.getTemplateBlock().getSampleInput();
-        }
-
-        Object output = templateFunctionInvoker.invoke(fp.get(name.getFunctionName()), json);
-
-        TextBuilder builder = TextBuilder.builder("## Verification for Function: " + fullName);
-
-        builder.newLineWithCurrentIndents("### Input");
-        builder.newLineWithCurrentIndents("```json input");
-        builder.newLineWithCurrentIndents().append(json);
-        builder.newLineWithCurrentIndents("```");
-        builder.newLine();
-
-        builder.newLineWithCurrentIndents("### output");
-        builder.newLineWithCurrentIndents("```");
-        builder.newLineWithCurrentIndents().append(output);
-        builder.newLineWithCurrentIndents("```");
-
-        return builder.toString();
-    }
-
-    public String create(String fullName, String templateFormate, String schemaFormat, String template) {
-        FunctionName name = new FunctionName(fullName);
-        DefaultTemplateFunctionPackage pkg = DefaultTemplateFunctionPackage.newInstance(name.getPackageName());
-        pkg.addFunction(name.getFunctionName());
-
-        TemplateBlock block = pkg.getRootMarkdownNode().getChildren().get(name.getFunctionName()).getTemplateBlock();
-        block.setTemplateFormat(templateFormate);
-        block.setTemplate(template);
-        block.setInputSchemaFormat(schemaFormat);
-
-        getSchema(schemaFormat, template);
-
-        return pkg.toString();
-    }
-
-    public String verifyTemplate(String markdown) {
-        DefaultTemplateFunctionPackage pkg = new DefaultTemplateFunctionPackage(markdown);
-        try {
-            TemplateFunction function = pkg.getFunctions()[0];
-            TemplateBlock block = pkg.getRootMarkdownNode().getChildren().get(function.getName()).getTemplateBlock();
-            String input = block.getSampleInput();
-            return (String)templateFunctionInvoker.invoke(function, input);
-
-        } catch (NullPointerException e) {
-            return "Illegal Format.";
-
-        }
+        return null;
     }
 
     public String createOrMerge(String markdown) throws IOException {
         String result = markdown;
-        DefaultTemplateFunctionPackage pkg = new DefaultTemplateFunctionPackage(markdown);
+        TemplatePackageMarkdown pkg = new TemplatePackageMarkdown(markdown);
         if (pkgs.containsKey(pkg.getName())) {
-            DefaultTemplateFunctionPackage functionPackage = pkgs.get(pkg.getName());
+            TemplatePackageMarkdown functionPackage = pkgs.get(pkg.getName());
             functionPackage.merge(pkg);
             result = functionPackage.toString();
         } else {
@@ -167,7 +146,7 @@ public class FunctionService {
         }
 
         File worksheet = new File(functionDir, packageFileName(pkg.getName()));
-        if(!worksheet.exists()) {
+        if (!worksheet.exists()) {
             worksheet.createNewFile();
         }
 
@@ -180,7 +159,7 @@ public class FunctionService {
         String packageNam = fullName.substring(0, lastPoint);
         String functionName = fullName.substring(lastPoint + 1);
 
-        DefaultTemplateFunctionPackage pkg = (DefaultTemplateFunctionPackage) pkgs.get(packageNam);
+        TemplatePackageMarkdown pkg = (TemplatePackageMarkdown) pkgs.get(packageNam);
         TemplateFunction function = pkg.get(functionName);
 
         return (String) templateFunctionInvoker.invoke(function, json);
@@ -211,7 +190,7 @@ public class FunctionService {
         return "";
     }
 
-    private String createPrompt( String templateFormat, String schemaFormat, String requirement) {
+    private String createPrompt(String templateFormat, String schemaFormat, String requirement) {
         return requirement;
     }
 }

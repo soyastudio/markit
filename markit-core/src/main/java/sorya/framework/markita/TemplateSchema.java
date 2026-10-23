@@ -1,5 +1,5 @@
 package sorya.framework.markita;
 
-public interface TemplateSchema {
+public interface TemplateSchema extends TemplateComponent {
     TemplateParameter[] parameters();
 }

@@ -2,12 +2,12 @@ package sorya.framework.markita;
 
 import java.util.List;
 
-public interface TemplatePipeline extends TemplateProcessor {
-    List<TemplateParameter> parameters();
+public interface TemplatePipeline extends TemplateExecutable {
+    TemplateSchema getSchema();
 
-    List<TemplateAnnotator> annotators();
+    List<TemplateFunction> getFunctions();
 
-    List<TemplateEvaluator> evaluators();
+    List<TemplateAnnotator> getAnnotators();
 
-    List<TemplateRenderer> renderers();
+    List<TemplateRenderer> getRenderers();
 }

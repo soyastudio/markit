@@ -14,7 +14,7 @@ public class TemplateMarkdownNode {
     private String title;
     private final List<String> descriptions = new ArrayList<>();
 
-    private TemplateBlock templateBlock;
+    private TemplateComponentDefinition<?> componentDefinition;
 
     private TemplateMarkdownNode root;
     private TemplateMarkdownNode parent;
@@ -28,12 +28,20 @@ public class TemplateMarkdownNode {
         this.root = this;
     }
 
+
+    public TemplateMarkdownNode(String name, TemplateComponentDefinition<?> componentDefinition) {
+        this.name = name;
+        this.path = name;
+        this.root = this;
+        this.componentDefinition = componentDefinition;
+    }
+
     public String getName() {
         return name;
     }
 
     public String getTitle() {
-        return title;
+        return title != null && !title.trim().isEmpty() ? title : name;
     }
 
     public void setTitle(String title) {
@@ -44,12 +52,12 @@ public class TemplateMarkdownNode {
         return descriptions;
     }
 
-    public TemplateBlock getTemplateBlock() {
-        return templateBlock;
+    public TemplateComponentDefinition<?> getComponentDefinition() {
+        return componentDefinition;
     }
 
-    public void setTemplateBlock(TemplateBlock templateBlock) {
-        this.templateBlock = templateBlock;
+    public void setComponentDefinition(TemplateComponentDefinition<?> componentDefinition) {
+        this.componentDefinition = componentDefinition;
     }
 
     public TemplateMarkdownNode getRoot() {
@@ -62,6 +70,10 @@ public class TemplateMarkdownNode {
 
     public Map<String, TemplateMarkdownNode> getChildren() {
         return children;
+    }
+
+    public TemplateMarkdownNode getChild(String name) {
+        return children.get(name);
     }
 
     public int getLevel() {
@@ -105,49 +117,20 @@ public class TemplateMarkdownNode {
     }
 
     public void toMarkdown(TextBuilder builder) {
-
-        builder.newLineWithCurrentIndents("#".repeat(level)).append(" ");
-        if (parent == null) {
-            builder.append(getTitle());
-        } else {
-            builder.append("[").append(getTitle()).append("](#").append(getPath()).append(")");
-        }
+        builder.newLineWithCurrentIndents("#".repeat(level))
+                .append(" [").append(getTitle()).append("](").append(getPath()).append(")");
 
         descriptions.forEach(e -> {
             builder.newLineWithCurrentIndents(e).newLine();
         });
 
-        if(templateBlock != null) {
-            builder.newLineWithCurrentIndents("Template");
-            builder.newLineWithCurrentIndents("```").append(templateBlock.getTemplateFormat());
-            builder.newLineWithCurrentIndents(templateBlock.getTemplate());
-            builder.newLineWithCurrentIndents("```");
-            builder.newLine();
-
-            builder.newLineWithCurrentIndents("Input Schema");
-            builder.newLineWithCurrentIndents(SchemaFormat.INPUT_FENCE_CHAR.repeat(3)).append(templateBlock.getInputSchemaFormat());
-            builder.newLineWithCurrentIndents(templateBlock.getInputSchema());
-            builder.newLineWithCurrentIndents(SchemaFormat.INPUT_FENCE_CHAR.repeat(3));
-            builder.newLine();
-
-            builder.newLineWithCurrentIndents("Sample Input (Optional)");
-            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3))
-                    .append(templateBlock.getSampleInputFormat()).append(" input");
-            builder.newLineWithCurrentIndents(templateBlock.getSampleInput());
-            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3));
-
-            builder.newLineWithCurrentIndents("Sample Output (Optional)");
-            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3))
-                    .append(templateBlock.getSampleOutputFormat()).append(" output");
-            builder.newLineWithCurrentIndents(templateBlock.getSampleOutput());
-            builder.newLineWithCurrentIndents(SchemaFormat.OUTPUT_FENCE_CHAR.repeat(3));
+        if (componentDefinition != null) {
+            componentDefinition.toMarkdown(builder);
         }
 
         builder.newLine();
         children.forEach((k, v) -> {
             v.toMarkdown(builder);
         });
-
     }
-
 }

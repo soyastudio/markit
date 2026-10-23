@@ -76,9 +76,8 @@ public class FunctionController {
     )
     public ResponseEntity<String> createFunction(@PathVariable String name,
                                                  @RequestHeader(required = false, defaultValue = "freemarker") String templateFormat,
-                                                 @RequestHeader(required = false, defaultValue = "yaml") String schemaFormat,
                                                  @RequestBody(required = false) String template) {
-        return ResponseEntity.ok(functionService.create(name, templateFormat, schemaFormat, template));
+        return ResponseEntity.ok(functionService.create(name, templateFormat, template));
     }
 
     @PostMapping(

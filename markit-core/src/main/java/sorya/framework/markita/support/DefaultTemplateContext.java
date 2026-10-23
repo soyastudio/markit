@@ -28,7 +28,7 @@ public class DefaultTemplateContext implements TemplateContext {
     private TemplateContextAttribute initAnnotation;
 
     private Map<String, List<String>> metadata;
-    private DefaultTemplate template;
+    private TemplatePipelineMarkdown pipeline;
 
     private String message;
     private TemplateContextAttribute parameters = new TemplateContextAttribute(PARAM_BLOCK_NAME, PARAM_BLOCK_TITLE, PARAM_BLOCK_FORMAT);

@@ -5,24 +5,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import soya.framework.markit.workshop.service.TemplateService;
+import soya.framework.markit.workshop.service.PipelineService;
 
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/template")
-@Tag(name = "Template")
-public class TemplateController {
+@RequestMapping("/api/pipeline")
+@Tag(name = "Template Pipeline")
+public class PipelineController {
 
     @Autowired
-    private TemplateService templateService;
+    private PipelineService pipelineService;
 
     @GetMapping(
             value = "/{name}",
             produces = MediaType.TEXT_PLAIN_VALUE
     )
     public ResponseEntity<String> get(@PathVariable String name) {
-        return ResponseEntity.ok(templateService.get(name));
+        return ResponseEntity.ok(pipelineService.get(name));
     }
 
     @PutMapping(
@@ -31,7 +31,7 @@ public class TemplateController {
     )
     public ResponseEntity<String> process(@PathVariable String name) {
         try {
-            return ResponseEntity.ok(templateService.process(name));
+            return ResponseEntity.ok(pipelineService.process(name));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -49,7 +49,7 @@ public class TemplateController {
                                                @RequestHeader String templateFormat,
                                                @RequestBody String template) {
         try {
-            return ResponseEntity.ok(templateService.process(name));
+            return ResponseEntity.ok(pipelineService.process(name));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -13,7 +13,6 @@ public class TemplateMetadata {
     private String[] functions = new String[0];
     private String[] parameters = new String[0];
     private String[] annotators = new String[0];
-    private String[] evaluators = new String[0];
     private String[] renderers = new String[0];
 
     private final Map<String, Object> metadata = new LinkedHashMap<>();
@@ -76,14 +75,6 @@ public class TemplateMetadata {
 
     public void setAnnotators(String[] annotators) {
         this.annotators = annotators;
-    }
-
-    public String[] getEvaluators() {
-        return evaluators;
-    }
-
-    public void setEvaluators(String[] evaluators) {
-        this.evaluators = evaluators;
     }
 
     public String[] getRenderers() {

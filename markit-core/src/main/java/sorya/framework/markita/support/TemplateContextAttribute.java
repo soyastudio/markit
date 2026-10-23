@@ -38,7 +38,6 @@ public class TemplateContextAttribute implements TemplateAnnotation, MarkdownTem
         return descriptions;
     }
 
-    @Override
     public String getFormat() {
         return format;
     }

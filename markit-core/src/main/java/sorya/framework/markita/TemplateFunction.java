@@ -1,12 +1,8 @@
 package sorya.framework.markita;
 
-public interface TemplateFunction {
-    String getName();
-
+public interface TemplateFunction extends TemplateExecutable, TemplateComponent {
     String getTemplateFormat();
 
     String getTemplate();
-
-    TemplateSchema getSchema();
 
 }

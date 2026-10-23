@@ -7,7 +7,7 @@ public interface Workspace {
 
     File getFunctionDir();
 
-    File getTemplateDir();
+    File getPipelineDir();
 
     File getProjectDir();
 

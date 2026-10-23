@@ -17,6 +17,13 @@ public class ZipEncryptUtils {
     private static final String ALGORITHM = "AES";
     private static final int KEY_SIZE = 256; // or 128, 192, 256
 
+
+    // Compress (Zip) -> Base64 String
+    public static String zipAndBase64(String data) throws Exception {
+        byte[] compressed = compress(data.getBytes("UTF-8"));
+        return Base64.getEncoder().encodeToString(compressed);
+    }
+
     // Compress (Zip) -> Encrypt -> Base64 String
     public static String zipAndEncrypt(String data, SecretKey secretKey) throws Exception {
         byte[] compressed = compress(data.getBytes("UTF-8"));

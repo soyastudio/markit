@@ -3,9 +3,9 @@ package sorya.framework.markita.support;
 import sorya.framework.markita.TemplateAnnotator;
 import sorya.framework.markita.TemplateContext;
 
-public class DefaultTemplateAnnotator implements TemplateAnnotator {
+import java.util.Map;
 
-    private String name;
+public class DefaultTemplateAnnotator extends AbstractTemplateComponent implements TemplateAnnotator {
 
     private String inputTemplateFormat;
     private String inputTemplate;
@@ -15,12 +15,10 @@ public class DefaultTemplateAnnotator implements TemplateAnnotator {
 
     private String outputSchema;
 
-    @Override
-    public String getName() {
-        return name;
+    public DefaultTemplateAnnotator(String name, Map<String, String> properties) {
+        super(name, properties);
     }
 
-    @Override
     public String getFormat() {
         return "";
     }

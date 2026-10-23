@@ -1,31 +1,28 @@
 package sorya.framework.markita.support;
 
 import sorya.framework.markita.TemplateFunction;
-import sorya.framework.markita.TemplateResolver;
 import sorya.framework.markita.TemplateSchema;
 
-public class DefaultTemplateFunction implements TemplateFunction {
+import java.util.Map;
 
-    private final String name;
-    private final String templateFormat;
-    private final String template;
-    private final TemplateSchema schema;
+public class DefaultTemplateFunction extends AbstractTemplateComponent implements TemplateFunction {
 
-    public DefaultTemplateFunction(String name, String templateFormat, String template, TemplateSchema schema) {
-        this.name = name;
-        this.templateFormat = templateFormat;
-        this.template = template;
-        this.schema = schema;
+    private String templateFormat;
+    private String template;
+    private TemplateSchema schema;
+
+    public DefaultTemplateFunction(String name, Map<String, String> properties) {
+        super(name, properties);
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
 
     @Override
     public String getTemplateFormat() {
         return templateFormat;
+    }
+
+    public void setTemplateFormat(String templateFormat) {
+        this.templateFormat = templateFormat;
     }
 
     @Override
@@ -33,8 +30,16 @@ public class DefaultTemplateFunction implements TemplateFunction {
         return template;
     }
 
+    public void setTemplate(String template) {
+        this.template = template;
+    }
+
     @Override
     public TemplateSchema getSchema() {
         return schema;
+    }
+
+    public void setSchema(TemplateSchema schema) {
+        this.schema = schema;
     }
 }

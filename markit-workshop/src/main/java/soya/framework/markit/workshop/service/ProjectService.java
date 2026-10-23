@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import sorya.framework.markita.TemplateEngine;
+import sorya.framework.markita.TemplatePipelineEngine;
 import sorya.framework.markita.util.TextBuilder;
 import sorya.framework.markita.util.ZipEncryptUtils;
 import soya.framework.markit.workshop.configuration.Workspace;
@@ -31,14 +31,14 @@ public class ProjectService {
     private String secretKey;
 
     @Autowired
-    private TemplateEngine templateEngine;
+    private TemplatePipelineEngine templateEngine;
 
     @Autowired
-    private TemplateService templateService;
+    private PipelineService pipelineService;
 
     public ProjectService(Workspace workspace) {
         projectDir = workspace.getProjectDir();
-        try {
+        /*try {
             File file = new File(workspace.getTemplateDir(), "azure-sql-ingestion-template.md");
             String md = Files.readString(Path.of(file.toURI()));
             String key = "JMVPebNWUd1LTYiVL9Ymrg1ycNnLceJILhhoppZa3DU=";
@@ -56,7 +56,7 @@ public class ProjectService {
             System.out.println(builder.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
     public String create(String id, String template) {
