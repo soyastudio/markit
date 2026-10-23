@@ -167,7 +167,7 @@ sequenceDiagram
 - Generate Template Function Package with AI
 - Create Normalized Requirements for Generating Template Function Package with AI
 
-## Executable Markdown
+### 6. Executable Markdown
 
 1. Markdown is flatten AST, Executable Markdown(ExMD) can be parsed as tree-like AST by using Heading and Link;
 2. ExMD files start with metadata block to declare executable component (template, schema, annotator, generator...) and index/search metadata (tags, metadata...);
@@ -178,4 +178,45 @@ sequenceDiagram
 
 ## Functions and Packages
 
+### 1. Template Function
 
+**Output Types of Template Functions:**
+- Text based contents: email, web pages...
+- Documents: PDF, 
+- Data: csv, json, xml...
+- Codes: java, python...
+- AI Prompt
+- Workflow
+
+**Define a Template Function:**
+- Template Format: how to parse and execute the template script
+- Template Script: template logic
+- Template Schema: define the variables for input data
+
+**Template Engine**
+1. Static:
+   - Traditional Template Engine: Mustache/Handlebar, Freemarker...
+   - Scripting languages: JavaScript, Python...
+2. Dynamic:
+   - API call
+   - AI prompting
+
+**How to Create Function**
+- Manually
+- From existing work example
+- AI assisted, ChatBot eg.
+
+### 2. Template Function Package
+
+### 3. Template Function Repository
+
+**Indexing**
+
+**RAG**
+
+### 4. Generate Template Functions Using AI
+
+## Template Pipeline
+
+
+## Template Orchestration
