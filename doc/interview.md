@@ -25,9 +25,23 @@
 
 
 ### Development Platform
+- RESTruts
+  - API first
+  - Action-based 
+  - Separation of Concern: business logic and technical logic, less code
+  - OpenAPI document -> ExMD -> Apply template
 - SOYA Development Platform
 - Complex Template Workflow
 
 ### AI Assist
 - java, scala, typescript, python
 - AI assist to create reusable template(whole development workflow)
+
+
+### Scala API Framework
+- Tapir, circe, server(zio-http/netty, http4s, Akka HTTP, Netty, Play)
+- MCP Server: 
+
+
+### TypeScript API Framework
+NestJs, zod for MCP Server
