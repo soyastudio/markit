@@ -19,12 +19,6 @@ public class TemplatePipelineMarkdown extends ExecutableMarkdown<TemplatePipelin
 
     public TemplatePipelineMarkdown(String markdown) {
         super(markdown);
-
-        try {
-            System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(pipeline));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -78,7 +72,13 @@ public class TemplatePipelineMarkdown extends ExecutableMarkdown<TemplatePipelin
 
         metadata.renderers.forEach(e -> {
             TemplateComponentDescriptor descriptor = new TemplateComponentDescriptor(e);
-            renderers.addChild(new TemplateMarkdownNode(descriptor.getName(), new RendererDefinition(descriptor.getName(), descriptor.getProperties())));
+            RendererDefinition rendererDefinition = new RendererDefinition(descriptor.getName(), descriptor.getProperties());
+
+            if(rendererDefinition.getProperties() != null  && rendererDefinition.getProperties().get("function") != null) {
+                String function = rendererDefinition.getProperties().get("function");
+            }
+
+            renderers.addChild(new TemplateMarkdownNode(descriptor.getName(), rendererDefinition));
         });
     }
 
@@ -111,28 +111,29 @@ public class TemplatePipelineMarkdown extends ExecutableMarkdown<TemplatePipelin
         TemplateComponentDefinition<?> definition = tn.getComponentDefinition();
         TemplateElement templateElement = TemplateElement.fromMarkdown(fencedCodeBlock);
 
-        System.out.println("---------- " + tn.getName() + ": " + templateElement.getFormat() + ": " + templateElement.getName());
-        System.out.println(templateElement.getBody());
-
         if(definition instanceof SchemaDefinition schemaDefinition) {
             if(templateElement.getBody() != null && !templateElement.getBody().isEmpty()) {
-                schemaDefinition.getSchemaElement().setFormat(templateElement.getFormat());
-                schemaDefinition.getSchemaElement().setBody(templateElement.getBody());
+                schemaDefinition.getSchemaElement().set(templateElement);
             }
 
         } else if (definition instanceof FunctionDefinition functionDefinition) {
             if(FunctionDefinition.TEMPLATE_TOKEN.equalsIgnoreCase(templateElement.getName())) {
-                functionDefinition.getTemplateElement().setFormat(templateElement.getFormat());
-                functionDefinition.getTemplateElement().setBody(templateElement.getBody());
+                functionDefinition.getTemplateElement().set(templateElement);
             } else if(FunctionDefinition.SCHEMA_TOKEN.equalsIgnoreCase(templateElement.getName())) {
-                functionDefinition.getSchemaElement().setFormat(templateElement.getFormat());
-                functionDefinition.getSchemaElement().setBody(templateElement.getBody());
+                functionDefinition.getSchemaElement().set(templateElement);
             }
 
         } else if(definition instanceof AnnotatorDefinition annotatorDefinition) {
+            if(AnnotatorDefinition.SCHEMA_TOKEN.equalsIgnoreCase(templateElement.getName())) {
+                annotatorDefinition.getSchemaElement().set(templateElement);
+            } else if(AnnotatorDefinition.TEMPLATE_TOKEN.equalsIgnoreCase(templateElement.getName())) {
+                annotatorDefinition.getTemplateElement().set(templateElement);
+            }
 
         } else if (definition instanceof RendererDefinition rendererDefinition) {
-
+            if(RendererDefinition.ASSIGNMENT_TOKEN.equalsIgnoreCase(templateElement.getName())) {
+                rendererDefinition.getAssignmentElement().set(templateElement);
+            }
         }
 
     }

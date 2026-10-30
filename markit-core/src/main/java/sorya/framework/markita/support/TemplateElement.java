@@ -36,6 +36,11 @@ public class TemplateElement {
         }
     }
 
+    public void set(TemplateElement templateElement) {
+        this.format = templateElement.getFormat();
+        this.body = templateElement.getBody();
+    }
+
     public String getName() {
         return componentDescriptor != null? componentDescriptor.getName() : null;
     }

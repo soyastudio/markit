@@ -16,6 +16,13 @@
     </properties>
 
     <dependencies>
+        <!-- Source: https://mvnrepository.com/artifact/io.swagger.parser.v3/swagger-parser -->
+        <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>2.1.48</version>
+        </dependency>
+
         <!-- Source: https://mvnrepository.com/artifact/com.github.jknack/handlebars -->
         <dependency>
             <groupId>com.github.jknack</groupId>
@@ -43,6 +50,20 @@
             <artifactId>snakeyaml</artifactId>
             <version>2.7</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-core -->
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>3.2.4</version>
+        </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>3.2.4</version>
         </dependency>
 
         <!-- Google -->
@@ -182,6 +203,7 @@
 
     <modules>
         <module>markit-core</module>
+        <module>markit-openapi</module>
         <module>markit-workshop</module>
     </modules>
 

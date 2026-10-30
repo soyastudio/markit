@@ -185,6 +185,8 @@ sequenceDiagram
 - Documents: PDF, 
 - Data: csv, json, xml...
 - Codes: java, python...
+- Multi-media: images, audio, video
+- 
 - AI Prompt
 - Workflow
 
@@ -202,21 +204,150 @@ sequenceDiagram
    - AI prompting
 
 **How to Create Function**
-- Manually
-- From existing work example
+- Manually creating
+- From existing work example, and then parameterizing
 - AI assisted, ChatBot eg.
 
 ### 2. Template Function Package
 
+- Group template functions
+- Documented in markdown files
+- Persisted in function repository for reuse
+- Indexed 
+
 ### 3. Template Function Repository
 
-**Indexing**
+**LLM Wiki and Obsidian**
 
 **RAG**
 
 ### 4. Generate Template Functions Using AI
 
+## Writing Template Script
+### Writing String Template
+#### 1. Simple String Template with Placeholder
+
+
+#### 2. Writing mustache/Handlebars template
+
+```handlebars
+CREATE TABLE IF NOT EXISTS `{{dataset}}.{{table_name}}` (
+  {{#each schema}}
+  `{{name}}` {{type}}{{#if mode}} {{mode}}{{/if}}{{#if description}} OPTIONS(description="{{description}}"){{/if}}{{#unless @last}},{{/unless}}
+  {{/each}}
+)
+{{#if partition_field}}
+PARTITION BY {{partition_field}}
+{{/if}}
+{{#if clustering_fields}}
+CLUSTER BY {{#each clustering_fields}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
+OPTIONS(
+  description="{{description}}"
+);
+```
+
+#### 3. Writing jinja template
+
+```jinja
+
+
+```
+
+#### 4. Writing Freemarker template
+
+```freemarker
+
+
+```
+
+### Writing Template Using Scripting Languages
+
+#### 1. Writing Python Template Script
+
+```python
+import json
+
+def process_data(data: dict):
+    """
+    Function that receives the parsed dict from input JSON string.
+    Modify the body with your own logic.
+    """
+    # Example logic using dict access
+    return {
+        "name": data.get("name"),
+        "age": data.get("age"),
+        "hobbies": data.get("hobbies", []),
+        "is_adult": data.get("age", 0) >= 18,
+    }
+
+
+# 1. Input: JSON string
+input = '''
+${parameters}
+'''
+
+# 2. Parse JSON string into a dict
+parsed_dict = json.loads(input)
+
+# 3. Output: call the function with the dict argument
+output = process_data(parsed_dict)
+
+# 4. Print / use the output
+print(json.dumps(output, indent=2, ensure_ascii=False))
+
+```
+
+#### 4. Writing JavaScript Template Script
+
+```javascript
+
+```
+
+#### 5. Writing Kotlin Template Script
+
+```kotlin
+
+```
+
+#### 6. Writing Groovy Template Script
+
+```groovy
+
+```
+
+### Writing Template Which Call External Function or Service
+#### 1. Bash/Shell Scripting
+```shell
+
+```
+
+#### 2. HTTP Request
+
+```http request
+
+```
+
+#### 3. AI Prompting
+```prompt
+
+
+```
+
 ## Template Pipeline
 
+### Pipeline Session
+When a pipeline instance is created, a pipeline session is also create. The session is used to host required middle term state(data) required to trigger the template functions.
 
-## Template Orchestration
+The session and its states are recorded into a markdown file, which can be updated manually or programmatically and rerun in next loop.
+
+### Template Annotator
+The annotators take the responsibility to calculate, transform or gather additional data based on current session states. Each annotator saves its results as an annotation with the same name. 
+
+Multiple annotators process in sequence. So they have dependency.
+
+An annotator usually generates an executable script through a predefined template which also save into annotation. It also provides an check point for human interfere (human-in-the-loop)
+
+## Template Orchestration and Finite State Machine
+
+

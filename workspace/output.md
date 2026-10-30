@@ -1,110 +1,45 @@
----
-name: azure-sql-ingestion-template
-owner: wenqun
-version: 0.0.1
-description:
-  - xyz
-tags:
-  - ABC
-  - xyz
-parameters: 
-  - bod_name
-  - application
-functions: 
-  - create-bq-table
-annotators: 
-  - project-properties?format=yaml
-  - table-definition-query?format=sql
-  - table-definition?format=csv
-renderers: 
-  - data-catalog-generator
-metadata:
----
+# Template Verification
 
-# [Azure SQL Ingestion Template](.)
-
-## [PARAMETERS](./PARAMETERS)
-
-### [SCHEMA](./PARAMETERS/schema)
-**Input Schema**
-```yaml SCHEMA
-bod_name:
-  type: "string"
-  description: "description_of_bod_name"
-  required: true
-  defaultValue: "default_value_of_bod_name"
-  examples:
-    - "example_of_bod_name"
-
-application:
-  type: "string"
-  description: "description_of_application"
-  required: true
-  defaultValue: "default_value_of_application"
-  examples:
-    - "example_of_application"
-
+### Template
+```handlebars TEMPLATE
+CREATE TABLE IF NOT EXISTS `{{dataset}}.{{table_name}}` (
+  {{#each schema}}
+  `{{name}}` {{type}}{{#if mode}} {{mode}}{{/if}}{{#if description}} OPTIONS(description="{{description}}"){{/if}}{{#unless @last}},{{/unless}}
+  {{/each}}
+)
+{{#if partition_field}}
+PARTITION BY {{partition_field}}
+{{/if}}
+{{#if clustering_fields}}
+CLUSTER BY {{#each clustering_fields}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
+OPTIONS(
+  description="{{description}}"
+);
 ```
 
-
-## [FUNCTIONS](./FUNCTIONS)
-
-### [create-bq-table](./FUNCTIONS/create-bq-table)
-**Template**
-```freemarker TEMPLATE
-Hello ${name}!
-
+### Input Data
+```yaml INPUT
+table_name: user_events
+dataset: analytics
+description: "User behavior events"
+partition_field: event_date
+clustering_fields:
+  - user_id
+  - event_type
+schema:
+  - name: event_date
+    type: DATE
+    mode: NULLABLE
+    description: "Event date"
+  - name: user_id
+    type: STRING
+    mode: REQUIRED
+    description: "User ID"
+  - name: event_type
+    type: STRING
+    mode: NULLABLE
+  - name: properties
+    type: JSON
+    mode: NULLABLE
 ```
-
-**Input Schema**
-```yaml SCHEMA
-$schema: "http://json-schema.org/draft-07/schema#"
-type: "object"
-properties: 
-  name:
-    type: "string"
-
-```
-
-
-## [ANNOTATORS](./ANNOTATORS)
-
-### [project-properties](./ANNOTATORS/project-properties)
-Output Schema
-``` SCHEMA
-
-```
-
-TEMPLATE
-``` TEMPLATE
-
-```
-
-
-### [table-definition-query](./ANNOTATORS/table-definition-query)
-Output Schema
-``` SCHEMA
-
-```
-
-TEMPLATE
-``` TEMPLATE
-
-```
-
-
-### [table-definition](./ANNOTATORS/table-definition)
-Output Schema
-``` SCHEMA
-
-```
-
-TEMPLATE
-``` TEMPLATE
-
-```
-
-
-## [RENDERERS](./RENDERERS)
-
-### [data-catalog-generator](./RENDERERS/data-catalog-generator)

@@ -118,7 +118,6 @@ public class TemplatePackageMarkdown extends ExecutableMarkdown<TemplatePackageM
         }
 
         TemplateElement templateElement = TemplateElement.fromMarkdown(fencedCodeBlock);
-
         if (TemplateComponentDefinition.SCHEMA_TOKEN.equalsIgnoreCase(templateElement.getName())) {
             definition.setSchemaElement(templateElement);
 

@@ -30,15 +30,14 @@ public class DefaultTemplateFunctionInvoker implements TemplateFunctionInvoker {
     }
 
     @Override
-    public final Object invoke(TemplateFunction function, String input) {
-        Map<String, Object> params = parseInput(input, function.getSchema());
+    public final Object invoke(TemplateFunction function, Map<String, Object> input) {
 
         TemplateExecutor executor = executors.get(function.getTemplateFormat().toUpperCase());
         if (executor == null) {
             throw new NullPointerException("Cannot find template executor for: " + function.getTemplateFormat());
         }
 
-        return executor.execute(function.getTemplate(), params);
+        return executor.execute(function.getTemplate(), input);
     }
 
     protected Map<String, Object> parseInput(String input, TemplateSchema schema) {

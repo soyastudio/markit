@@ -17,7 +17,7 @@ annotators:
   - table-definition-query?format=sql
   - table-definition?format=csv
 renderers: 
-  - data-catalog-generator
+  - data-catalog-generator?function=create-bq-table
 metadata:
 ---
 
@@ -70,13 +70,17 @@ properties:
 ## [ANNOTATORS](./ANNOTATORS)
 
 ### [project-properties](./ANNOTATORS/project-properties)
+<pre>
+Description of annotator project-properties
+</pre>
+
 Output Schema
-``` SCHEMA
+```yaml SCHEMA
 
 ```
 
 TEMPLATE
-``` TEMPLATE
+```python TEMPLATE
 
 ```
 
@@ -108,3 +112,36 @@ TEMPLATE
 ## [RENDERERS](./RENDERERS)
 
 ### [data-catalog-generator](./RENDERERS/data-catalog-generator)
+<pre>
+<code>
+bod_name:
+  type: "string"
+  description: "bod_name_desc"
+  required: true
+  defaultValue: "default_value_of_bod_name"
+  examples:
+    - "example_of_bod_name"
+
+application:
+  type: "string"
+  description: "description_of_application"
+  required: true
+  defaultValue: "default_value_of_application"
+  examples:
+    - "example_of_application"
+</code>
+</pre>
+
+
+Function Assignment:
+```jsonpath ASSIGNMENT
+{
+
+}
+
+```
+
+
+```gherkin
+
+```

@@ -158,7 +158,7 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
             if (!data.containsKey("name")) {
                 throw new IllegalArgumentException("Field is required in metadata: 'name'");
             } else {
-                this.name = data.get("name").get(0);
+                this.name = data.get("name").getFirst();
             }
 
             if (!data.containsKey("owner")) {

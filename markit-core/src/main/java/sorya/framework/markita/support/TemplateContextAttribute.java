@@ -11,16 +11,16 @@ public class TemplateContextAttribute implements TemplateAnnotation, MarkdownTem
     private final String title;
     private final List<String> descriptions = new ArrayList<>();
 
-    private final String format;
-    private String payload;
+    private final String scriptType;
+    private String script;
 
     private Object value;
     private String message;
 
-    public TemplateContextAttribute(String name, String title, String format) {
+    public TemplateContextAttribute(String name, String title, String scriptType) {
         this.name = name;
         this.title = title;
-        this.format = format;
+        this.scriptType = scriptType;
     }
 
     @Override
@@ -38,16 +38,17 @@ public class TemplateContextAttribute implements TemplateAnnotation, MarkdownTem
         return descriptions;
     }
 
-    public String getFormat() {
-        return format;
+    public String getScriptType() {
+        return scriptType;
     }
 
-    public String getPayload() {
-        return payload;
+    @Override
+    public String getScript() {
+        return script;
     }
 
-    public void setPayload(String payload) {
-        this.payload = payload;
+    public void setScript(String script) {
+        this.script = script;
     }
 
     public Object getValue() {

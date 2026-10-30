@@ -160,7 +160,7 @@ public class DefaultTemplateContext implements TemplateContext {
 
             if (INIT_BLOCK_NAME.equalsIgnoreCase(name)) {
                 initAnnotation = new TemplateContextAttribute(name, format, "Reqirement");
-                initAnnotation.setPayload(payload);
+                initAnnotation.setScript(payload);
                 if ("yaml".equalsIgnoreCase(format)) {
                     initAnnotation.setValue(new Yaml().load(payload));
                 }

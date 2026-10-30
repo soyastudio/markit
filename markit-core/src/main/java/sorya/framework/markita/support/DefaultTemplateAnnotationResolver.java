@@ -4,10 +4,10 @@ public class DefaultTemplateAnnotationResolver implements TemplateAnnotationReso
 
     @Override
     public Object resolve(TemplateContextAttribute annotation) {
-        if (annotation.getPayload() == null) {
+        if (annotation.getScript() == null) {
             return null;
         } else {
-            String format = annotation.getFormat();
+            String format = annotation.getScriptType();
         }
 
         return null;

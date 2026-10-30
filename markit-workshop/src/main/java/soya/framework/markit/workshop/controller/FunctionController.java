@@ -19,6 +19,16 @@ public class FunctionController {
     @Autowired
     FunctionService functionService;
 
+    // =================== Templates:
+    @PostMapping(
+            value = "/template-verification-template",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> createTemplateVerificationTemplate(@RequestHeader String formate, @RequestBody String template) {
+        return ResponseEntity.ok(functionService.createTemplateVerificationTemplate(formate, template));
+    }
+
     // =================== Packages:
     @GetMapping(
             value = "/packages",
