@@ -1,0 +1,518 @@
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: For more information visit https://developer.xero.com/documentation/oauth2/overview
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.xero.com/identity/connect/authorize
+          tokenUrl: https://identity.xero.com/connect/token
+          scopes:
+            accountdata.balances.read: Read general ledger account balances
+            accountdata.movements.read: Read general ledger account movements
+            accountdata.transactions.read: Read general ledger account transactions
+  parameters:
+    XeroTenantId:
+      name: Xero-Tenant-Id
+      in: header
+      required: true
+      description: The ID of the Xero organisation to query.
+      schema:
+        type: string
+        format: uuid
+      example: 2ae32d9e-4711-4201-9f2a-ac80e5318359
+  responses:
+    Unauthorised:
+      description: |
+        **Unauthorized** - Returned by the gateway when the access token is missing, invalid or expired (`Detail` is `AuthenticationUnsuccessful`), or does not include the scope this endpoint requires (`Detail` is `AuthorizationUnsuccessful` and `WWW-Authenticate` is `insufficient_scope`).
+      headers:
+        WWW-Authenticate:
+          description: '`Bearer`, or `insufficient_scope` when the token lacks the required scope.'
+          schema:
+            type: string
+        Xero-Correlation-Id:
+          description: The correlation ID of the request.
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GatewayProblem'
+          examples:
+            invalidToken:
+              summary: Missing, invalid or expired token
+              value:
+                Type: null
+                Title: Unauthorized
+                Status: 401
+                Detail: AuthenticationUnsuccessful
+                Instance: 76295f13-127d-4464-adde-18f181faf38c
+                Extensions: {}
+            insufficientScope:
+              summary: Token lacks the required scope
+              value:
+                Type: null
+                Title: Unauthorized
+                Status: 401
+                Detail: AuthorizationUnsuccessful
+                Instance: 69b16318-fe7c-481e-9c4d-ad7d6286cc50
+                Extensions: {}
+    TooManyRequests:
+      description: |
+        **Too Many Requests** - Returned by the gateway when the app has exceeded a rate limit. The response has no body. Wait the number of seconds in `Retry-After` before retrying; `X-Rate-Limit-Problem` says which limit was exceeded (for example `day` for the daily limit).
+      headers:
+        Retry-After:
+          description: Number of seconds to wait before retrying.
+          schema:
+            type: integer
+          example: 33155
+        X-Rate-Limit-Problem:
+          description: The limit that was exceeded, for example `day`.
+          schema:
+            type: string
+          example: day
+        X-DayLimit-Remaining:
+          description: Calls remaining for the app and organisation today.
+          schema:
+            type: integer
+          example: 0
+        Xero-Correlation-Id:
+          description: The correlation ID of the request.
+          schema:
+            type: string
+            format: uuid
+    InternalError:
+      description: |
+        **Internal Server Error** - An unexpected error occurred. The request can be retried. The response body is not guaranteed to follow a particular format.
+  schemas:
+    AccountBalancesResponse:
+      type: object
+      required:
+        - accountBalances
+      properties:
+        accountBalances:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBalance'
+    AccountBalance:
+      type: object
+      required:
+        - accountId
+        - date
+        - balance
+        - signedBalance
+        - account
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          description: The account this balance is for.
+        date:
+          type: string
+          format: date
+          description: The date this balance applies to (YYYY-MM-DD).
+        balance:
+          $ref: '#/components/schemas/LedgerDecimal'
+        signedBalance:
+          type: number
+          format: double
+          description: Balance as a signed number (positive for debit, negative for credit).
+        account:
+          $ref: '#/components/schemas/Account'
+    Account:
+      type: object
+      required:
+        - name
+        - class
+        - type
+        - status
+        - systemAccountCode
+      properties:
+        code:
+          type: string
+          nullable: true
+        name:
+          type: string
+        class:
+          type: string
+          enum:
+            - ASSET
+            - LIABILITY
+            - EQUITY
+            - REVENUE
+            - EXPENSE
+        type:
+          type: string
+          description: |
+            Account type (e.g. `BANK`, `CURRENT`). Reported as `INVENTORY` for inventory
+            asset accounts, regardless of the account's underlying type.
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - ARCHIVED
+            - DELETED
+        systemAccountCode:
+          type: string
+          description: System account code, or `NONE` if the account has no system account code.
+    LedgerDecimal:
+      type: object
+      required:
+        - value
+        - type
+      properties:
+        value:
+          type: number
+          format: double
+          description: Amount value (always positive).
+        type:
+          type: string
+          enum:
+            - DEBIT
+            - CREDIT
+    ProblemDetails:
+      type: object
+      description: Problem details for HTTP APIs, in the style of RFC 7807.
+      required:
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          description: URI reference identifying the problem type.
+        title:
+          type: string
+          description: Short, human-readable summary.
+        status:
+          type: integer
+          description: HTTP status code.
+        detail:
+          type: string
+          description: Detailed explanation of the problem.
+        instance:
+          type: string
+          description: URI reference identifying the specific occurrence.
+    AccountMovementsResponse:
+      type: object
+      required:
+        - accountMovements
+      properties:
+        accountMovements:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountMovement'
+    AccountMovement:
+      type: object
+      required:
+        - accountId
+        - dateRange
+        - debits
+        - credits
+        - movement
+        - signedMovement
+        - account
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          description: The account this movement is for.
+        dateRange:
+          $ref: '#/components/schemas/AccountingDateRange'
+        debits:
+          type: number
+          format: double
+          description: Total debits posted to this account within the date range.
+        credits:
+          type: number
+          format: double
+          description: Total credits posted to this account within the date range.
+        movement:
+          $ref: '#/components/schemas/LedgerDecimal'
+        signedMovement:
+          type: number
+          format: double
+          description: Movement as a signed number (positive for debit, negative for credit).
+        taxDebits:
+          type: number
+          format: double
+          description: Total tax debits within the date range. Omitted from the response when tax values
+            are not available.
+        taxCredits:
+          type: number
+          format: double
+          description: Total tax credits within the date range. Omitted from the response when tax values
+            are not available.
+        signedTaxMovement:
+          type: number
+          format: double
+          description: Tax movement as a signed number (positive for debit, negative for credit). Omitted
+            from the response when tax values are not available.
+        account:
+          $ref: '#/components/schemas/Account'
+    AccountingDateRange:
+      type: object
+      required:
+        - startDate
+        - endDate
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+    AccountTransactionsResponse:
+      type: object
+      required:
+        - currencyCode
+        - maxJournalNumber
+        - lines
+      properties:
+        currencyCode:
+          type: string
+          description: Organisation's base currency code (ISO 4217).
+          example: USD
+        maxJournalNumber:
+          type: integer
+          format: int64
+          description: |
+            Maximum journal number included in this result set. Captured at the first
+            request and held constant across all pages for consistency.
+          example: 546
+        lines:
+          type: array
+          description: Transaction lines for this page (max 200).
+          items:
+            $ref: '#/components/schemas/AccountTransactionLine'
+        pagination:
+          type: object
+          description: Pagination metadata. `null` on the last page, including when there are no results.
+          properties:
+            pageSize:
+              type: integer
+              format: int32
+              example: 200
+            nextToken:
+              type: string
+              description: Opaque continuation token for the next page. Send it as the `token` query parameter to retrieve the next page.
+              example: ZXhhbXBsZS1jb250aW51YXRpb24tdG9rZW4
+          nullable: true
+          required:
+            - pageSize
+            - nextToken
+    AccountTransactionLine:
+      type: object
+      required:
+        - journalNumber
+        - journalDate
+        - account
+        - netAmount
+        - description
+        - source
+        - taxRate
+      properties:
+        journalNumber:
+          type: integer
+          format: int64
+          description: Unique journal number for this transaction.
+        journalDate:
+          type: string
+          format: date
+          description: Accounting date of the transaction (YYYY-MM-DD).
+        description:
+          type: string
+          description: Line description, falling back to the journal narration. Empty if neither is set.
+        account:
+          $ref: '#/components/schemas/TransactionAccount'
+        netAmount:
+          $ref: '#/components/schemas/LedgerDecimal'
+        signedNetAmount:
+          type: number
+          format: double
+          description: Net amount as a signed number (positive for debit, negative for credit).
+        taxAmount:
+          $ref: '#/components/schemas/LedgerDecimal'
+        signedTaxAmount:
+          type: number
+          format: double
+          description: Tax amount as a signed number (positive for debit, negative for credit).
+        source:
+          $ref: '#/components/schemas/LineSource'
+        taxRate:
+          $ref: '#/components/schemas/LineTaxRate'
+        trackingCategories:
+          type: object
+          description: |
+            Present only when `include=trackingCategories` was requested, and omitted otherwise. Keys are
+            tracking category IDs (UUIDs); values describe the selected tracking option. The object is empty
+            when the line has no tracking.
+          additionalProperties:
+            $ref: '#/components/schemas/TrackingItemDetails'
+    LineSource:
+      type: object
+      description: The originating document/event for this transaction line. Always present; its fields
+        are null when the source is unknown.
+      properties:
+        documentId:
+          type: string
+          format: uuid
+          nullable: true
+        documentType:
+          type: string
+          nullable: true
+        eventType:
+          type: string
+          nullable: true
+        contactId:
+          type: string
+          format: uuid
+          nullable: true
+        contactName:
+          type: string
+          nullable: true
+        reference:
+          type: string
+          nullable: true
+    LineTaxRate:
+      type: object
+      description: The tax rate applied to this transaction line. Always present; its fields are null
+        when no tax rate applies.
+      properties:
+        code:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        percentage:
+          type: number
+          format: double
+          nullable: true
+    TrackingItemDetails:
+      type: object
+      required:
+        - categoryName
+        - optionId
+        - optionName
+      properties:
+        categoryName:
+          type: string
+        optionId:
+          type: string
+          format: uuid
+        optionName:
+          type: string
+    TransactionAccount:
+      type: object
+      required:
+        - id
+        - name
+        - class
+        - type
+        - status
+        - systemAccountCode
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+          nullable: true
+        name:
+          type: string
+        class:
+          type: string
+          enum:
+            - ASSET
+            - LIABILITY
+            - EQUITY
+            - REVENUE
+            - EXPENSE
+        type:
+          type: string
+          description: |
+            Account type (e.g. `BANK`, `CURRENT`). Reported as `INVENTORY` for inventory
+            asset accounts, regardless of the account's underlying type.
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - ARCHIVED
+            - DELETED
+        systemAccountCode:
+          type: string
+          description: System account code, or `NONE` if the account has no system account code.
+    FieldProblem:
+      type: object
+      description: A single validation failure.
+      properties:
+        fieldName:
+          type: string
+          nullable: true
+          description: The name of the offending parameter, or an empty string when the failure is not
+            tied to one parameter.
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+    ValidationProblem:
+      type: object
+      description: Returned with `400 Bad Request` when the request fails validation.
+      properties:
+        type:
+          type: string
+          description: URI reference identifying the problem type.
+        title:
+          type: string
+          description: Short, human-readable summary.
+        status:
+          type: integer
+          description: HTTP status code.
+        detail:
+          type: string
+          description: Detailed explanation of the problem.
+        instance:
+          type: string
+          description: URI reference identifying the specific occurrence.
+        fieldValidationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldProblem'
+    GatewayProblem:
+      type: object
+      required:
+        - Title
+        - Status
+      description: Error body produced by the Xero API gateway (authentication, authorisation and tenant
+        checks). Note the PascalCase property names.
+      properties:
+        Type:
+          type: string
+          nullable: true
+        Title:
+          type: string
+          example: Unauthorized
+        Status:
+          type: integer
+          format: int32
+        Detail:
+          type: string
+        Instance:
+          type: string
+          description: The correlation ID of the request, also returned in the `Xero-Correlation-Id` header.
+        Extensions:
+          type: object
+          additionalProperties: true

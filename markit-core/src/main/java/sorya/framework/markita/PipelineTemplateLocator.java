@@ -1,8 +1,8 @@
 package sorya.framework.markita;
 
-public interface TemplatePipelineLocator {
+public interface PipelineTemplateLocator {
 
-    TemplatePipeline getTemplatePipeline(String name) throws TemplatePipelineNotFoundException;
+    PipelineTemplate getTemplatePipeline(String name) throws TemplatePipelineNotFoundException;
 
     class TemplatePipelineNotFoundException extends NullPointerException {
         public TemplatePipelineNotFoundException(String name) {

@@ -1,31 +1,107 @@
 package soya.framework.markit.workshop.service;
 
+import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.Template;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import sorya.framework.markita.TemplatePipelineLocator;
+import sorya.framework.markita.PipelineTemplate;
+import sorya.framework.markita.TemplatePipelineEngine;
+import sorya.framework.markita.support.PipelineMarkdown;
+import sorya.framework.markita.support.PipelineMetadata;
+import sorya.framework.markita.support.PipelineTemplateMarkdown;
 import soya.framework.markit.workshop.configuration.Workspace;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @Service
 public class PipelineService {
 
-    private File templateProjectDir;
+    private final File projectDir;
+
+    @Value("${soya.framework.markit.empty-project-template}")
+    private Resource emptyProjectTemplate;
+
+    @Value("${soya.framework.markit.secret-key}")
+    private String secretKey;
 
     @Autowired
-    TemplatePipelineLocator locator;
+    private TemplatePipelineEngine templateEngine;
+
+    @Autowired
+    private PipelineTemplateService pipelineTemplateService;
 
     public PipelineService(Workspace workspace) {
-        this.templateProjectDir = workspace.getTemplateProjectDir();
+        projectDir = workspace.getProjectDir();
     }
 
-    public String get(String name) {
-        return locator.getTemplatePipeline(name).toString();
+    public String create(PipelineMetadata metadata) {
+        try {
+            return null;
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 
-    public String process(String templateName) throws IOException {
-        return "TODO: ";
+    public String get(String id) throws IOException{
+        String result = null;
+
+        File dir = new File(projectDir, id);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+
+        File worksheet = new File(dir, id + ".md");
+        if(!worksheet.exists()) {
+
+        } else {
+            result = Files.readString(worksheet.toPath());
+            PipelineMarkdown pipelineMarkdown = new PipelineMarkdown(result);
+
+            result = pipelineMarkdown.toString();
+        }
+
+        return result;
+    }
+
+    public String process(String projectId) throws IOException {
+        File dir = new File(projectDir, projectId);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+
+        File worksheet = new File(dir, projectId + ".md");
+        String markdown;
+        if (!worksheet.exists()) {
+            // 1. create new
+            worksheet.createNewFile();
+            markdown = templateEngine.create(projectId);
+
+        } else {
+            markdown = Files.readString(Path.of(worksheet.toURI()));
+            markdown = templateEngine.execute(markdown);
+        }
+
+        Files.writeString(Path.of(worksheet.toURI()), createDefault(projectId));
+
+        return markdown;
+    }
+
+    private String createDefault(String projectId) throws IOException {
+        Map<String, Object> context = new LinkedHashMap<>();
+        context.put("projectId", projectId);
+
+
+        Template template = Mustache.compiler().compile(emptyProjectTemplate.getContentAsString(StandardCharsets.UTF_8));
+        return template.execute(context);
     }
 
 }

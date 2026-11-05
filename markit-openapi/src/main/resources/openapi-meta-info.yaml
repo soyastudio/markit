@@ -1,0 +1,21 @@
+openapi: 3.0.0
+info:
+  version: 20.0.0
+  title: Xero Account Data API (Beta)
+  description: |
+    **Beta:** this API is in beta. Endpoints, request parameters and response shapes may change before general availability.
+
+    The Account Data API provides read access to general ledger account data for a Xero organisation: account balances as at a date, account movements over a date range, and the individual account transactions behind them.
+  termsOfService: https://developer.xero.com/xero-developer-platform-terms-conditions/
+  contact:
+    name: Xero Platform Team
+    email: api@xero.com
+    url: https://developer.xero.com
+  license:
+    name: MIT
+    url: https://github.com/XeroAPI/Xero-OpenAPI/blob/master/LICENSE
+servers:
+  - url: http://api.example.com/v1
+    description: Optional server description, e.g. Main (production) server
+  - url: http://staging-api.example.com
+    description: Optional server description, e.g. Internal staging server for testing

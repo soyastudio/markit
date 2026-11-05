@@ -3,13 +3,16 @@ package sorya.framework.markita.support;
 import sorya.framework.markita.*;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-public class DefaultTemplatePipeline implements TemplatePipeline {
+public class DefaultPipelineTemplate implements PipelineTemplate {
+
     private String name;
     private TemplateSchema schema;
     private final List<TemplateFunction> functions= new ArrayList<>();
-    private final List<TemplateAnnotator> annotators = new ArrayList<>();
+    private final Map<String, TemplateAnnotator> annotators = new LinkedHashMap<>();
     private final List<TemplateRenderer> renderers = new ArrayList<>();
 
     @Override
@@ -37,7 +40,12 @@ public class DefaultTemplatePipeline implements TemplatePipeline {
 
     @Override
     public List<TemplateAnnotator> getAnnotators() {
-        return annotators;
+        return new ArrayList<>(annotators.values());
+    }
+
+    @Override
+    public TemplateAnnotator getAnnotator(String name) {
+        return annotators.get(name);
     }
 
     @Override

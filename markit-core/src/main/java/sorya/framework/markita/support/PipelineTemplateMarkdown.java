@@ -1,13 +1,12 @@
 package sorya.framework.markita.support;
 
-import com.google.gson.GsonBuilder;
 import org.commonmark.node.FencedCodeBlock;
 import sorya.framework.markita.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TemplatePipelineMarkdown extends ExecutableMarkdown<TemplatePipelineMarkdown.PipelineMetadata> implements TemplatePipeline {
+public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplateMarkdown.PipelineTemplateMetadata> implements PipelineTemplate {
 
     public static final String SCHEMA = "schema";
     public static final String PARAMETERS = "PARAMETERS";
@@ -15,9 +14,9 @@ public class TemplatePipelineMarkdown extends ExecutableMarkdown<TemplatePipelin
     public static final String ANNOTATORS = "ANNOTATORS";
     public static final String RENDERERS = "RENDERERS";
 
-    private DefaultTemplatePipeline pipeline;
+    private DefaultPipelineTemplate pipeline;
 
-    public TemplatePipelineMarkdown(String markdown) {
+    public PipelineTemplateMarkdown(String markdown) {
         super(markdown);
     }
 
@@ -84,7 +83,7 @@ public class TemplatePipelineMarkdown extends ExecutableMarkdown<TemplatePipelin
 
     @Override
     protected void configure() {
-        this.pipeline = new DefaultTemplatePipeline();
+        this.pipeline = new DefaultPipelineTemplate();
         pipeline.setName(metadata.name);
         SchemaDefinition schemaDefinition = (SchemaDefinition) root.getChild(PARAMETERS).getChild(SCHEMA).getComponentDefinition();
         pipeline.setSchema(schemaDefinition.create());
@@ -154,11 +153,16 @@ public class TemplatePipelineMarkdown extends ExecutableMarkdown<TemplatePipelin
     }
 
     @Override
+    public TemplateAnnotator getAnnotator(String name) {
+        return pipeline.getAnnotator(name);
+    }
+
+    @Override
     public List<TemplateRenderer> getRenderers() {
         return pipeline.getRenderers();
     }
 
-    static class PipelineMetadata extends Metadata {
+    static class PipelineTemplateMetadata extends Metadata {
         List<String> parameters = new ArrayList<>();
         List<String> functions = new ArrayList<>();
         List<String> annotators = new ArrayList<>();

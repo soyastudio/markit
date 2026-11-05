@@ -1,5 +1,9 @@
 package sorya.framework.markita.support;
 
-public interface PipelineInitializer {
-    void init(ExecutableMarkdown.Metadata metadata);
+import sorya.framework.markita.Pipeline;
+
+public interface PipelineInitializer<T> {
+    T getResource();
+
+    void init(Pipeline pipeline);
 }

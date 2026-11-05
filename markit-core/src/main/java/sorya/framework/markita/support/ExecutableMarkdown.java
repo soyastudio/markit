@@ -154,6 +154,56 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
         protected List<String> tags;
         protected List<String> metadata;
 
+        private transient Map<String, String> metaMap = new LinkedHashMap<>();
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getOwner() {
+            return owner;
+        }
+
+        public void setOwner(String owner) {
+            this.owner = owner;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public List<String> getDescription() {
+            return description;
+        }
+
+        public void setDescription(List<String> description) {
+            this.description = description;
+        }
+
+        public List<String> getTags() {
+            return tags;
+        }
+
+        public void setTags(List<String> tags) {
+            this.tags = tags;
+        }
+
+        public List<String> getMetadata() {
+            return metadata;
+        }
+
+        public void setMetadata(List<String> metadata) {
+            this.metadata = metadata;
+        }
+
         protected void configure(Map<String, List<String>> data) {
             if (!data.containsKey("name")) {
                 throw new IllegalArgumentException("Field is required in metadata: 'name'");
@@ -164,16 +214,23 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
             if (!data.containsKey("owner")) {
                 throw new IllegalArgumentException("Field is required in metadata: 'owner'");
             } else {
-                this.owner = data.get("owner").get(0);
+                this.owner = data.get("owner").getFirst();
             }
 
             if (data.containsKey(version)) {
-                this.version = data.get("version").get(0);
+                this.version = data.get("version").getFirst();
             }
 
-            this.description = data.containsKey("description") ? data.get("description") : List.of();
-            this.tags = data.containsKey("tags") ? data.get("tags") : List.of();
-            this.metadata = data.containsKey("metadata") ? data.get("metadata") : List.of();
+            this.description = data.containsKey("description") ? data.get("description") : new ArrayList<>();
+            this.tags = data.containsKey("tags") ? data.get("tags") : new ArrayList<String>();
+            this.metadata = data.containsKey("metadata") ? data.get("metadata") : new ArrayList<>();
+            metadata.forEach(e -> {
+                if(e.contains(": ")) {
+                    String[] arr = e.split(": ");
+                    metaMap.put(arr[0], arr[1].trim());
+                }
+            });
+
 
             Arrays.stream(getDeclaredFieldNames()).forEach(e -> {
                 List<String> value = data.get(e);
@@ -181,7 +238,7 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
                     Field field = getClass().getDeclaredField(e);
                     field.setAccessible(true);
                     if (field.getType().isAssignableFrom(List.class)) {
-                        field.set(this, value == null ? List.of() : value);
+                        field.set(this, value == null ? new ArrayList<String>() : value);
                     } else if (field.getType().isArray() && field.getType().getComponentType().isAssignableFrom(String.class)) {
                         field.set(this, value == null ? new String[0] : value.toArray(new String[0]));
 
@@ -195,6 +252,28 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
                 }
             });
 
+        }
+
+        public String getMetadata(String name) {
+            return metaMap.get(name);
+        }
+
+        public String[] getMetadataArray(String name) {
+            if(metaMap.containsKey(name)) {
+                String value = metaMap.get(name).trim();
+                if(value.startsWith("[") && value.endsWith("]")) {
+                    value = value.substring(1, value.length() - 1);
+                }
+
+                String[] arr = value.split(",");
+                for(int i = 0; i < arr.length; i ++) {
+                    arr[i] = arr[i].trim();
+                }
+
+                return arr;
+            }
+
+            return null;
         }
 
         protected abstract String[] getDeclaredFieldNames();

@@ -36,6 +36,14 @@ public class TemplateMarkdownNode {
         this.componentDefinition = componentDefinition;
     }
 
+    public TemplateMarkdownNode(String name, String title, TemplateComponentDefinition<?> componentDefinition) {
+        this.name = name;
+        this.title = title;
+        this.componentDefinition = componentDefinition;
+        this.path = name;
+        this.root = this;
+    }
+
     public String getName() {
         return name;
     }

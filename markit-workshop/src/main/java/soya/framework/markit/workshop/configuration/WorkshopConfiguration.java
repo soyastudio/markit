@@ -93,25 +93,25 @@ public class WorkshopConfiguration {
     }
 
     @Bean
-    public TemplatePipelineLocator templateLocator(Workspace workspace) {
-        return new DefaultTemplatePipelineLocator(workspace);
+    public PipelineTemplateLocator templateLocator(Workspace workspace) {
+        return new DefaultPipelineTemplateLocator(workspace);
     }
 
     @Bean
-    public TemplatePipelineEngine templateEngine(TemplatePipelineLocator locator) {
+    public TemplatePipelineEngine templateEngine(PipelineTemplateLocator locator) {
         return new DefaultTemplatePipelineEngine(locator);
     }
 
-    static class DefaultTemplatePipelineLocator implements TemplatePipelineLocator {
-        private final Map<String, TemplatePipeline> pipelines = new HashMap<>();
+    static class DefaultPipelineTemplateLocator implements PipelineTemplateLocator {
+        private final Map<String, PipelineTemplate> pipelines = new HashMap<>();
 
-        DefaultTemplatePipelineLocator(Workspace workspace) {
+        DefaultPipelineTemplateLocator(Workspace workspace) {
             Path path = workspace.getPipelineDir().toPath();
             try (Stream<Path> stream = Files.walk(path)) {
                 stream.filter(Files::isRegularFile) // Finds only files, not directories
                         .forEach(e -> {
                             try {
-                                TemplatePipeline pipeline = new TemplatePipelineMarkdown(Files.readString(e));
+                                PipelineTemplate pipeline = new PipelineTemplateMarkdown(Files.readString(e));
                                 pipelines.put(pipeline.getName(), pipeline);
                             } catch (IOException ex) {
                                 throw new RuntimeException(ex);
@@ -124,7 +124,7 @@ public class WorkshopConfiguration {
         }
 
         @Override
-        public TemplatePipeline getTemplatePipeline(String name) throws TemplatePipelineNotFoundException {
+        public PipelineTemplate getTemplatePipeline(String name) throws TemplatePipelineNotFoundException {
             if (pipelines.containsKey(name)) {
                 return pipelines.get(name);
             }

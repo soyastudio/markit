@@ -1,0 +1,21 @@
+operationId:
+method: GET
+path: string (e.g., "/users/{userId}")
+summary: string
+description: string
+parameters:
+  - name:
+    in:
+    required: true
+    description: ""
+    schema:
+      type: string
+      enum:
+        - A
+        - B
+      example: A
+requestBody: RequestBody
+responses: Responses
+tags:
+  - A
+security: SecurityRequirement[]

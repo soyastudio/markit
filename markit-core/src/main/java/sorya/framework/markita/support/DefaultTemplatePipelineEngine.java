@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultTemplatePipelineEngine implements TemplatePipelineEngine {
-    private final TemplatePipelineLocator locator;
-    protected Map<String, TemplatePipeline> pipelines = new HashMap<>();
+    private final PipelineTemplateLocator locator;
+    protected Map<String, PipelineTemplate> pipelines = new HashMap<>();
 
-    public DefaultTemplatePipelineEngine(TemplatePipelineLocator locator) {
+    public DefaultTemplatePipelineEngine(PipelineTemplateLocator locator) {
         this.locator = locator;
     }
 
@@ -22,7 +22,7 @@ public class DefaultTemplatePipelineEngine implements TemplatePipelineEngine {
     public String execute(String md) {
         TemplateContext context = new DefaultTemplateContext(md);
         if(context.getTemplate() != null) {
-            TemplatePipeline pipeline = locator.getTemplatePipeline(context.getTemplate());
+            PipelineTemplate pipeline = locator.getTemplatePipeline(context.getTemplate());
 
             //pipelines.get(template.getName()).process(context);
             return context.toString();
