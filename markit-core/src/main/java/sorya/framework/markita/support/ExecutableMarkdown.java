@@ -90,7 +90,7 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
     public void visit(Heading heading) {
         if (heading.getLevel() == 1 && root != null) {
             // Top/Root Level:
-            if(heading.getFirstChild() instanceof  Text txt) {
+            if (heading.getFirstChild() instanceof Text txt) {
                 root.setTitle(txt.getLiteral());
             } else if (heading.getFirstChild() instanceof Link link && link.getFirstChild() instanceof Text txt) {
                 root.setTitle(txt.getLiteral());
@@ -125,7 +125,7 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
                 break;
             }
 
-            if(heading.getLevel() == 3 && node instanceof FencedCodeBlock fencedCodeBlock) {
+            if (heading.getLevel() == 3 && node instanceof FencedCodeBlock fencedCodeBlock) {
                 processFencedBlock(tn, fencedCodeBlock);
 
             } else {
@@ -137,7 +137,7 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
     }
 
     protected void process(TemplateMarkdownNode tn, Node nd) {
-        if(nd instanceof HtmlBlock block) {
+        if (nd instanceof HtmlBlock block) {
             tn.getDescriptions().add(block.getLiteral());
         }
     }
@@ -150,11 +150,9 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
         protected String owner;
         protected String version = "0.0.1";
 
-        protected List<String> description;
-        protected List<String> tags;
-        protected List<String> metadata;
-
-        private transient Map<String, String> metaMap = new LinkedHashMap<>();
+        protected List<String> description = new ArrayList<>();
+        protected List<String> tags = new ArrayList<>();
+        protected Map<String, Object> metadata = new LinkedHashMap<>();
 
         public String getName() {
             return name;
@@ -196,41 +194,42 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
             this.tags = tags;
         }
 
-        public List<String> getMetadata() {
-            return metadata;
-        }
-
-        public void setMetadata(List<String> metadata) {
-            this.metadata = metadata;
-        }
 
         protected void configure(Map<String, List<String>> data) {
             if (!data.containsKey("name")) {
                 throw new IllegalArgumentException("Field is required in metadata: 'name'");
-            } else {
-                this.name = data.get("name").getFirst();
             }
 
             if (!data.containsKey("owner")) {
                 throw new IllegalArgumentException("Field is required in metadata: 'owner'");
-            } else {
-                this.owner = data.get("owner").getFirst();
             }
 
             if (data.containsKey(version)) {
                 this.version = data.get("version").getFirst();
             }
 
-            this.description = data.containsKey("description") ? data.get("description") : new ArrayList<>();
-            this.tags = data.containsKey("tags") ? data.get("tags") : new ArrayList<String>();
-            this.metadata = data.containsKey("metadata") ? data.get("metadata") : new ArrayList<>();
-            metadata.forEach(e -> {
-                if(e.contains(": ")) {
-                    String[] arr = e.split(": ");
-                    metaMap.put(arr[0], arr[1].trim());
+            data.forEach((k, v) -> {
+                if ("name".equals(k)) {
+                    this.name = v.getFirst();
+
+                } else if ("owner".equals(k)) {
+                    this.owner = v.getFirst();
+
+                } else if ("description".equals(k) && v != null) {
+                    this.description = v;
+
+                } else if ("tags".equals(k) && v != null) {
+                    this.tags = v;
+
+                } else if (k.contains("metadata.")) {
+                    if (v != null && v.size() == 1) {
+                        metadata.put(k, v.getFirst());
+                    } else {
+                        metadata.put(k, v);
+                    }
+
                 }
             });
-
 
             Arrays.stream(getDeclaredFieldNames()).forEach(e -> {
                 List<String> value = data.get(e);
@@ -254,27 +253,14 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
 
         }
 
-        public String getMetadata(String name) {
-            return metaMap.get(name);
+        public Map<String, Object> getMetadata() {
+            return metadata;
         }
 
-        public String[] getMetadataArray(String name) {
-            if(metaMap.containsKey(name)) {
-                String value = metaMap.get(name).trim();
-                if(value.startsWith("[") && value.endsWith("]")) {
-                    value = value.substring(1, value.length() - 1);
-                }
-
-                String[] arr = value.split(",");
-                for(int i = 0; i < arr.length; i ++) {
-                    arr[i] = arr[i].trim();
-                }
-
-                return arr;
-            }
-
-            return null;
+        public Object getMetadata(String name) {
+            return metadata.get(name);
         }
+
 
         protected abstract String[] getDeclaredFieldNames();
 
@@ -330,12 +316,19 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
                 }
             });
 
-            appendLine("metadata:", builder);
             if (metadata != null) {
-                metadata.forEach(e -> {
-                    appendLine("  - " + e, builder);
+                metadata.forEach((k, v) -> {
+                    if (v instanceof String s) {
+                        appendLine(k + ": " + s, builder);
+                    } else if (v instanceof List<?> l) {
+                        appendLine(k + ":", builder);
+                        l.forEach(i -> {
+                            appendLine("  - " + i, builder);
+                        });
+                    }
                 });
             }
+            appendLine("", builder);
             appendLine("---", builder);
             return builder.toString();
         }

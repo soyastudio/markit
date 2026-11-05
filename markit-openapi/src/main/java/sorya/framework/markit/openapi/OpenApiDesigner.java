@@ -2,7 +2,6 @@ package sorya.framework.markit.openapi;
 
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.commons.io.IOUtils;
@@ -12,7 +11,7 @@ import sorya.framework.markita.support.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.List;
 
 public class OpenApiDesigner implements PipelineInitializer<OpenAPI> {
 
@@ -35,13 +34,13 @@ public class OpenApiDesigner implements PipelineInitializer<OpenAPI> {
 
     private static String loadFromClasspath(String path) throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
-        if(inputStream == null) {
+        if (inputStream == null) {
             throw new NullPointerException("File not found: " + path);
         }
         return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     }
 
-    private  OpenAPI openAPI;
+    private OpenAPI openAPI;
 
     @Override
     public OpenAPI getResource() {
@@ -62,12 +61,11 @@ public class OpenApiDesigner implements PipelineInitializer<OpenAPI> {
 
         // operations:
         TemplateMarkdownNode annotators = root.getChild(PipelineMarkdown.ANNOTATORS);
-        if(metadata.getMetadata("operations") != null) {
-            String[] operations = metadata.getMetadataArray("operations");
-            Arrays.stream(operations).forEach(o -> {
-                AnnotationDefinition annotationDefinition = new AnnotationDefinition(o, null);
+        if(metadata.getMetadata("metadata.init.operations") instanceof List<?> list) {
+            list.forEach(o -> {
+                AnnotationDefinition annotationDefinition = new AnnotationDefinition(o.toString(), null);
                 annotationDefinition.getScriptElement().setBody(OPENAPI_OPERATION.replace("operationId:", "operationId: " + o));
-                pl.getRootMarkdownNode().getChild(PipelineMarkdown.ANNOTATORS).addChild(new TemplateMarkdownNode(o, "Operation Annotation: " + o,  annotationDefinition));
+                pl.getRootMarkdownNode().getChild(PipelineMarkdown.ANNOTATORS).addChild(new TemplateMarkdownNode(o.toString(), "Operation Annotation: " + o,  annotationDefinition));
             });
         }
 

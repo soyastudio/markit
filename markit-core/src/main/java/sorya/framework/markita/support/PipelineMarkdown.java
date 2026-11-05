@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class PipelineMarkdown extends ExecutableMarkdown<PipelineMetadata> implements Pipeline {
 
-
     public static final String INIT_PARAMS = "INIT_PARAMS";
     public static final String ANNOTATORS = "ANNOTATORS";
 
