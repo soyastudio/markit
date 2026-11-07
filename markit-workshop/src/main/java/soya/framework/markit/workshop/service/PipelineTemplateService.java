@@ -3,6 +3,7 @@ package soya.framework.markit.workshop.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sorya.framework.markita.PipelineTemplateLocator;
+import sorya.framework.markita.support.PipelineTemplateMarkdown;
 import soya.framework.markit.workshop.configuration.Workspace;
 
 import java.io.File;
@@ -18,6 +19,10 @@ public class PipelineTemplateService {
 
     public PipelineTemplateService(Workspace workspace) {
         this.templateProjectDir = workspace.getTemplateProjectDir();
+    }
+
+    public String create(String name) {
+        return PipelineTemplateMarkdown.newInstance(name);
     }
 
     public String get(String name) {

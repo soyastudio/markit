@@ -9,8 +9,8 @@ tags:
   - xyz
 initializer: sorya.framework.markit.openapi.OpenApiDesigner
 annotators:
-metadata.init.url: https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/refs/heads/master/xero-accountdata.yaml
-metadata.init.operations:
+metadata.url: https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/refs/heads/master/xero-accountdata.yaml
+metadata.operations:
   - getAccountBalances
   - getAccountMovements
   - getAccountTransactions

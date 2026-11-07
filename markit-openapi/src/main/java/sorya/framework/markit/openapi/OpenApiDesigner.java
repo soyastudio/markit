@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class OpenApiDesigner implements PipelineInitializer<OpenAPI> {
+public class OpenApiDesigner implements PipelineResourceExtractor<OpenAPI> {
 
     private static final String OPENAPI_DESIGNER_DESCRIPTION;
     private static final String OPENAPI_META_INFO;
@@ -54,6 +54,7 @@ public class OpenApiDesigner implements PipelineInitializer<OpenAPI> {
         TemplateMarkdownNode root = pl.getRootMarkdownNode();
         root.getDescriptions().add(OPENAPI_DESIGNER_DESCRIPTION);
 
+
         // init params:
         TemplateMarkdownNode init = root.getChild(PipelineMarkdown.INIT_PARAMS).getChild(PipelineInitParamsDefinition.INIT_PARAMS);
         PipelineInitParamsDefinition initParamsDefinition = (PipelineInitParamsDefinition) init.getComponentDefinition();
@@ -61,7 +62,7 @@ public class OpenApiDesigner implements PipelineInitializer<OpenAPI> {
 
         // operations:
         TemplateMarkdownNode annotators = root.getChild(PipelineMarkdown.ANNOTATORS);
-        if(metadata.getMetadata("metadata.init.operations") instanceof List<?> list) {
+        if(metadata.getMetadata("metadata.operations") instanceof List<?> list) {
             list.forEach(o -> {
                 AnnotationDefinition annotationDefinition = new AnnotationDefinition(o.toString(), null);
                 annotationDefinition.getScriptElement().setBody(OPENAPI_OPERATION.replace("operationId:", "operationId: " + o));

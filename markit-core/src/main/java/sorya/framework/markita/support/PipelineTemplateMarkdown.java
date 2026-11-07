@@ -1,5 +1,7 @@
 package sorya.framework.markita.support;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.commonmark.node.FencedCodeBlock;
 import sorya.framework.markita.*;
 
@@ -8,85 +10,114 @@ import java.util.List;
 
 public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplateMarkdown.PipelineTemplateMetadata> implements PipelineTemplate {
 
-    public static final String SCHEMA = "schema";
     public static final String PARAMETERS = "PARAMETERS";
     public static final String FUNCTIONS = "FUNCTIONS";
     public static final String ANNOTATORS = "ANNOTATORS";
     public static final String RENDERERS = "RENDERERS";
+    public static final String CONFIGURATION = "CONFIGURATION";
+
+    private static final String EMPTY_PIPELINE_TEMPLATE;
 
     private DefaultPipelineTemplate pipeline;
 
+    static {
+        try {
+            EMPTY_PIPELINE_TEMPLATE = loadFromClasspath("META-INF/templates/empty-pipeline-template.md");
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    public static String newInstance(String name) {
+        return EMPTY_PIPELINE_TEMPLATE.replace("${name}", name);
+    }
+
     public PipelineTemplateMarkdown(String markdown) {
         super(markdown);
+    }
+
+    private void test() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        System.out.println(gson.toJson(pipeline));
     }
 
     @Override
     protected void init() {
         root.setTitle("Template Pipeline: " + metadata.name);
 
-        TemplateMarkdownNode parameters = new TemplateMarkdownNode(PARAMETERS);
-        parameters.setTitle(PARAMETERS);
+        // Parameters:
+        TemplateMarkdownNode parameters = new TemplateMarkdownNode(PARAMETERS, "Pipeline Parameters", null);
         root.addChild(parameters);
-        SchemaDefinition schemaDefinition = new SchemaDefinition();
-        StringBuilder builder = new StringBuilder();
-        metadata.parameters.forEach(p -> {
-            builder.append(p).append(":\n");
-            builder.append("  type: \"string\"\n");
-            builder.append("  description: \"description_of_").append(p).append("\"\n");
-            builder.append("  required: true\n");
-            builder.append("  defaultValue: \"default_value_of_").append(p).append("\"\n");
-            builder.append("  examples:\n");
-            builder.append("    - \"example_of_").append(p).append("\"\n");
-            builder.append("\n");
+        metadata.parameters.forEach(e -> {
+            if (!e.trim().isEmpty() && !e.trim().startsWith("# ")) {
+                TemplateComponentDescriptor descriptor = new TemplateComponentDescriptor(e);
+                parameters.addChild(new TemplateMarkdownNode(descriptor.getName(),
+                        "Parameter: " + descriptor.getName(),
+                        new PipelineParameterDefinition(descriptor.getName(), descriptor.getProperties())));
+            }
         });
 
-        schemaDefinition.getSchemaElement().setBody(builder.toString());
-        TemplateMarkdownNode schema = new TemplateMarkdownNode(SCHEMA, schemaDefinition);
-        schema.setTitle("SCHEMA");
-        parameters.addChild(schema);
-
-        TemplateMarkdownNode functions = new TemplateMarkdownNode(FUNCTIONS);
-        functions.setTitle(FUNCTIONS);
+        // Functions:
+        TemplateMarkdownNode functions = new TemplateMarkdownNode(FUNCTIONS, "Template Functions", null);
         root.addChild(functions);
 
-        TemplateMarkdownNode annotators = new TemplateMarkdownNode(ANNOTATORS);
-        annotators.setTitle(ANNOTATORS);
+        metadata.functions.forEach(e -> {
+            if (!e.trim().isEmpty() && !e.trim().startsWith("# ")) {
+                TemplateComponentDescriptor descriptor = new TemplateComponentDescriptor(e);
+                functions.addChild(new TemplateMarkdownNode(descriptor.getName(),
+                        "Function: " + descriptor.getName(),
+                        new FunctionDefinition(descriptor.getName(), descriptor.getProperties())));
+            }
+        });
+
+        // Annotators:
+        TemplateMarkdownNode annotators = new TemplateMarkdownNode(ANNOTATORS, "Annotator Templates", null);
         root.addChild(annotators);
 
-        TemplateMarkdownNode renderers = new TemplateMarkdownNode(RENDERERS);
-        renderers.setTitle(RENDERERS);
+        metadata.annotators.forEach(e -> {
+            if (!e.trim().isEmpty() && !e.trim().startsWith("# ")) {
+                TemplateComponentDescriptor descriptor = new TemplateComponentDescriptor(e);
+                annotators.addChild(new TemplateMarkdownNode(descriptor.getName(),
+                        "Annotator Template: " + descriptor.getName(),
+                        new AnnotatorDefinition(descriptor.getName(), descriptor.getProperties())));
+            }
+        });
+
+        // Renderers:
+        TemplateMarkdownNode renderers = new TemplateMarkdownNode(RENDERERS, "Template Renderers", null);
         root.addChild(renderers);
 
-        metadata.functions.forEach(e -> {
-            if (!e.startsWith("[")) {
-                TemplateComponentDescriptor descriptor = new TemplateComponentDescriptor(e);
-                functions.addChild(new TemplateMarkdownNode(descriptor.getName(), new FunctionDefinition(descriptor.getName(), descriptor.getProperties())));
-            }
-        });
-
-        metadata.annotators.forEach(e -> {
-            TemplateComponentDescriptor descriptor = new TemplateComponentDescriptor(e);
-            annotators.addChild(new TemplateMarkdownNode(descriptor.getName(), new AnnotatorDefinition(descriptor.getName(), descriptor.getProperties())));
-        });
-
         metadata.renderers.forEach(e -> {
-            TemplateComponentDescriptor descriptor = new TemplateComponentDescriptor(e);
-            RendererDefinition rendererDefinition = new RendererDefinition(descriptor.getName(), descriptor.getProperties());
+            if (!e.trim().isEmpty() && !e.trim().startsWith("# ")) {
+                TemplateComponentDescriptor descriptor = new TemplateComponentDescriptor(e);
+                RendererDefinition rendererDefinition = new RendererDefinition(descriptor.getName(), descriptor.getProperties());
 
-            if(rendererDefinition.getProperties() != null  && rendererDefinition.getProperties().get("function") != null) {
-                String function = rendererDefinition.getProperties().get("function");
+                if (rendererDefinition.getProperties() != null && rendererDefinition.getProperties().get("function") != null) {
+                    String function = rendererDefinition.getProperties().get("function");
+                }
+                renderers.addChild(new TemplateMarkdownNode(descriptor.getName(), "Renderer: " + descriptor.getName(),
+                        rendererDefinition));
             }
-
-            renderers.addChild(new TemplateMarkdownNode(descriptor.getName(), rendererDefinition));
         });
+
+        // Configuration:
+        TemplateMarkdownNode configuration = new TemplateMarkdownNode(CONFIGURATION, "Pipeline Configuration", null);
+        root.addChild(configuration);
+        // - Initializer Template
+        PipelineInitializerDefinition initializerDefinition = new PipelineInitializerDefinition(PipelineInitializerDefinition.INITIALIZER, null);
+        TemplateMarkdownNode init = new TemplateMarkdownNode(PipelineInitializerDefinition.INITIALIZER, "Pipeline Initializer Template", initializerDefinition);
+        configuration.addChild(init);
+
     }
 
     @Override
     protected void configure() {
         this.pipeline = new DefaultPipelineTemplate();
         pipeline.setName(metadata.name);
-        SchemaDefinition schemaDefinition = (SchemaDefinition) root.getChild(PARAMETERS).getChild(SCHEMA).getComponentDefinition();
-        pipeline.setSchema(schemaDefinition.create());
+        root.getChild(PARAMETERS).getChildren().forEach((k, v) -> {
+            PipelineParameterDefinition definition = (PipelineParameterDefinition) v.getComponentDefinition();
+            pipeline.getSchema().getParameters().add(definition.create());
+        });
 
         root.getChild(FUNCTIONS).getChildren().forEach((k, v) -> {
             FunctionDefinition definition = (FunctionDefinition) v.getComponentDefinition();
@@ -102,6 +133,12 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
             RendererDefinition definition = (RendererDefinition) v.getComponentDefinition();
             pipeline.getRenderers().add(definition.create());
         });
+
+        TemplateMarkdownNode configNode = root.getChild(CONFIGURATION);
+        PipelineInitializerDefinition initializerDefinition = (PipelineInitializerDefinition) configNode.getChild(PipelineInitializerDefinition.INITIALIZER).getComponentDefinition();
+
+
+        test();
     }
 
     @Override
@@ -110,27 +147,34 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
         TemplateComponentDefinition<?> definition = tn.getComponentDefinition();
         TemplateElement templateElement = TemplateElement.fromMarkdown(fencedCodeBlock);
 
-        if(definition instanceof SchemaDefinition schemaDefinition) {
-            if(templateElement.getBody() != null && !templateElement.getBody().isEmpty()) {
+        if (definition instanceof PipelineInitializerDefinition initializerDefinition) {
+            if (PipelineInitializerDefinition.INIT_SCRIPT.equalsIgnoreCase(templateElement.getName())) {
+                initializerDefinition.getInitScriptElement().set(templateElement);
+            } else if (PipelineInitializerDefinition.INIT_SCHEMA.equalsIgnoreCase(templateElement.getName())) {
+                initializerDefinition.getInitSchemaElement().set(templateElement);
+            }
+
+        } else if (definition instanceof SchemaDefinition schemaDefinition) {
+            if (templateElement.getBody() != null && !templateElement.getBody().isEmpty()) {
                 schemaDefinition.getSchemaElement().set(templateElement);
             }
 
         } else if (definition instanceof FunctionDefinition functionDefinition) {
-            if(FunctionDefinition.TEMPLATE_TOKEN.equalsIgnoreCase(templateElement.getName())) {
+            if (FunctionDefinition.TEMPLATE_TOKEN.equalsIgnoreCase(templateElement.getName())) {
                 functionDefinition.getTemplateElement().set(templateElement);
-            } else if(FunctionDefinition.SCHEMA_TOKEN.equalsIgnoreCase(templateElement.getName())) {
+            } else if (FunctionDefinition.SCHEMA_TOKEN.equalsIgnoreCase(templateElement.getName())) {
                 functionDefinition.getSchemaElement().set(templateElement);
             }
 
-        } else if(definition instanceof AnnotatorDefinition annotatorDefinition) {
-            if(AnnotatorDefinition.SCHEMA_TOKEN.equalsIgnoreCase(templateElement.getName())) {
+        } else if (definition instanceof AnnotatorDefinition annotatorDefinition) {
+            if (AnnotatorDefinition.SCHEMA_TOKEN.equalsIgnoreCase(templateElement.getName())) {
                 annotatorDefinition.getSchemaElement().set(templateElement);
-            } else if(AnnotatorDefinition.TEMPLATE_TOKEN.equalsIgnoreCase(templateElement.getName())) {
+            } else if (AnnotatorDefinition.TEMPLATE_TOKEN.equalsIgnoreCase(templateElement.getName())) {
                 annotatorDefinition.getTemplateElement().set(templateElement);
             }
 
         } else if (definition instanceof RendererDefinition rendererDefinition) {
-            if(RendererDefinition.ASSIGNMENT_TOKEN.equalsIgnoreCase(templateElement.getName())) {
+            if (RendererDefinition.ASSIGNMENT_TOKEN.equalsIgnoreCase(templateElement.getName())) {
                 rendererDefinition.getAssignmentElement().set(templateElement);
             }
         }
@@ -150,11 +194,6 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
     @Override
     public List<TemplateAnnotator> getAnnotators() {
         return pipeline.getAnnotators();
-    }
-
-    @Override
-    public TemplateAnnotator getAnnotator(String name) {
-        return pipeline.getAnnotator(name);
     }
 
     @Override

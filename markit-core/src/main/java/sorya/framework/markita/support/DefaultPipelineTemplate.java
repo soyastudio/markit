@@ -10,9 +10,9 @@ import java.util.Map;
 public class DefaultPipelineTemplate implements PipelineTemplate {
 
     private String name;
-    private TemplateSchema schema;
+    private final TemplateSchema schema = new DefaultTemplateSchema();
     private final List<TemplateFunction> functions= new ArrayList<>();
-    private final Map<String, TemplateAnnotator> annotators = new LinkedHashMap<>();
+    private final List<TemplateAnnotator> annotators = new ArrayList<>();
     private final List<TemplateRenderer> renderers = new ArrayList<>();
 
     @Override
@@ -20,17 +20,13 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public TemplateSchema getSchema() {
         return schema;
     }
 
-    public void setSchema(TemplateSchema schema) {
-        this.schema = schema;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -40,12 +36,7 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
 
     @Override
     public List<TemplateAnnotator> getAnnotators() {
-        return new ArrayList<>(annotators.values());
-    }
-
-    @Override
-    public TemplateAnnotator getAnnotator(String name) {
-        return annotators.get(name);
+        return annotators;
     }
 
     @Override

@@ -1,9 +1,10 @@
 package sorya.framework.markita.support;
 
-import sorya.framework.markita.Pipeline;
+import java.util.Map;
 
-public interface PipelineInitializer<T> {
-    T getResource();
+public class PipelineInitializer extends AbstractTemplateComponent {
 
-    void init(Pipeline pipeline);
+    public PipelineInitializer(String name, Map<String, String> properties) {
+        super(name, properties);
+    }
 }

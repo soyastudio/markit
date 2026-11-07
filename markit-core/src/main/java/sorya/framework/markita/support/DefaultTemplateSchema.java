@@ -15,10 +15,15 @@ import java.util.Map;
 
 public class DefaultTemplateSchema implements TemplateSchema {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private final TemplateParameter[] parameters;
+    private List<TemplateParameter> parameters = new ArrayList<>();
 
-    private DefaultTemplateSchema(TemplateParameter[] parameters) {
-        this.parameters = parameters;
+    public DefaultTemplateSchema() {
+    }
+
+    public DefaultTemplateSchema(List<TemplateParameter> parameters) {
+        if(parameters != null) {
+            this.parameters = parameters;
+        }
     }
 
     @Override
@@ -27,7 +32,7 @@ public class DefaultTemplateSchema implements TemplateSchema {
     }
 
     @Override
-    public TemplateParameter[] parameters() {
+    public List<TemplateParameter> getParameters() {
         return parameters;
     }
 
@@ -58,7 +63,7 @@ public class DefaultTemplateSchema implements TemplateSchema {
             });
         }
 
-        return new DefaultTemplateSchema(params.toArray(new TemplateParameter[0]));
+        return new DefaultTemplateSchema(params);
     }
 
     public static TemplateSchema fromJsonSchema(String jsonSchema) {

@@ -4,11 +4,12 @@ import sorya.framework.markita.TemplateSchema;
 import sorya.framework.markita.util.TextBuilder;
 
 public class SchemaDefinition extends TemplateComponentDefinition<TemplateSchema> {
+    public static final String SCHEMA = "SCHEMA";
 
     private TemplateElement schemaElement = new TemplateElement(SchemaFormat.YAML.name().toLowerCase(), "");
 
     public SchemaDefinition() {
-        super(null, null);
+        super(SCHEMA, null);
     }
 
     public TemplateElement getSchemaElement() {

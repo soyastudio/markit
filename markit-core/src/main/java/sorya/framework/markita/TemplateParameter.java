@@ -1,6 +1,6 @@
 package sorya.framework.markita;
 
-public interface TemplateParameter {
+public interface TemplateParameter extends TemplateComponent {
     String getName();
 
     String getDescription();

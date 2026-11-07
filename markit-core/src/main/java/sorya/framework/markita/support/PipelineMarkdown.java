@@ -14,6 +14,7 @@ public class PipelineMarkdown extends ExecutableMarkdown<PipelineMetadata> imple
     public static final String ANNOTATORS = "ANNOTATORS";
 
     private Object initResource;
+
     private final Map<String, Object> parameters = new LinkedHashMap<>();
     private final Map<String, TemplateAnnotation> annotations = new LinkedHashMap<>();
 
@@ -56,7 +57,7 @@ public class PipelineMarkdown extends ExecutableMarkdown<PipelineMetadata> imple
         root.addChild(annotators);
 
         try {
-            PipelineInitializer<?> initializer = (PipelineInitializer<?>) Class.forName(metadata.getInitializer()).getDeclaredConstructor()
+            PipelineResourceExtractor<?> initializer = (PipelineResourceExtractor<?>) Class.forName(metadata.getInitializer()).getDeclaredConstructor()
                     .newInstance();
 
             initializer.init(this);

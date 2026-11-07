@@ -17,6 +17,14 @@ public class PipelineTemplateController {
     @Autowired
     private PipelineTemplateService pipelineTemplateService;
 
+    @PostMapping(
+            value = "/{name}",
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public ResponseEntity<String> create(@PathVariable String name) {
+        return ResponseEntity.ok(pipelineTemplateService.create(name));
+    }
+
     @GetMapping(
             value = "/{name}",
             produces = MediaType.TEXT_PLAIN_VALUE

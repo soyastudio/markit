@@ -1,5 +1,6 @@
 package sorya.framework.markita.support;
 
+import org.apache.commons.io.IOUtils;
 import org.commonmark.ext.front.matter.YamlFrontMatterBlock;
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension;
 import org.commonmark.ext.front.matter.YamlFrontMatterNode;
@@ -7,9 +8,11 @@ import org.commonmark.node.*;
 import org.commonmark.parser.Parser;
 import sorya.framework.markita.util.TextBuilder;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> extends AbstractVisitor {
@@ -65,6 +68,10 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
         TextBuilder builder = TextBuilder.builder(metadata.toString()).setIndent(2);
         root.toMarkdown(builder);
         return builder.toString();
+    }
+
+    protected static String loadFromClasspath(String path) throws IOException {
+        return IOUtils.toString(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream(path)), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -145,6 +152,7 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
     protected abstract void processFencedBlock(TemplateMarkdownNode tn, FencedCodeBlock fencedCodeBlock);
 
     public static abstract class Metadata {
+        public static final String METADATA_PREFIX = "metadata.";
 
         protected String name;
         protected String owner;
@@ -243,7 +251,7 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
 
                     } else if (field.getType().isAssignableFrom(String.class)) {
                         if (value != null && value.size() == 1) {
-                            field.set(this, value.get(0));
+                            field.set(this, value.getFirst());
                         }
                     }
                 } catch (NoSuchFieldException | IllegalAccessException ex) {
@@ -261,6 +269,32 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
             return metadata.get(name);
         }
 
+        public Map<String, Object> getMetaTree() {
+            Map<String, Object> root = new LinkedHashMap<>();
+            metadata.forEach((k, v) -> {
+                set(root, k.substring(METADATA_PREFIX.length()), v);
+            });
+            return root;
+        }
+
+        private void set(Map<String, Object> map, String path, Object value) {
+            if (!path.contains(".")) {
+                map.put(path, value);
+            } else {
+                String subPath = path;
+                Map<String, Object> subMap = map;
+                while (subPath.contains(".")) {
+                    int index = subPath.indexOf(".");
+                    String key = subPath.substring(0, index);
+                    if (!subMap.containsKey(key)) {
+                        subMap.put(key, new LinkedHashMap<>());
+                    }
+                    subMap = (Map<String, Object>) subMap.get(key);
+                    subPath = subPath.substring(index + 1);
+                    set(subMap, subPath, value);
+                }
+            }
+        }
 
         protected abstract String[] getDeclaredFieldNames();
 
