@@ -6,7 +6,9 @@ public interface PipelineTemplate extends TemplateExecutable {
 
     List<TemplateFunction> getFunctions();
 
-    List<TemplateAnnotator> getAnnotators();
+    List<AnnotatorTemplate> getAnnotators();
 
     List<TemplateRenderer> getRenderers();
+
+    Pipeline create(String name, Object context);
 }

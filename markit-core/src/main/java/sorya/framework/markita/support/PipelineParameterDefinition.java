@@ -5,7 +5,7 @@ import sorya.framework.markita.util.TextBuilder;
 
 import java.util.Map;
 
-public class PipelineParameterDefinition extends TemplateComponentDefinition<TemplateParameter> {
+public class PipelineParameterDefinition extends TemplateComponentDefinition<DefaultTemplateParameter> {
 
     public static String PARAMETER = "PARAMETER";
 
@@ -29,7 +29,7 @@ public class PipelineParameterDefinition extends TemplateComponentDefinition<Tem
     }
 
     @Override
-    TemplateParameter create() {
+    DefaultTemplateParameter create() {
         return null;
     }
 }

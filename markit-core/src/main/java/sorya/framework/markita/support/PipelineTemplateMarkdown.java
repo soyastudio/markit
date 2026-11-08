@@ -1,9 +1,9 @@
 package sorya.framework.markita.support;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.commonmark.node.FencedCodeBlock;
 import sorya.framework.markita.*;
+import sorya.framework.markita.util.ZipEncryptUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +17,17 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
     public static final String CONFIGURATION = "CONFIGURATION";
 
     private static final String EMPTY_PIPELINE_TEMPLATE;
+    private static final String EMPTY_PIPELINE;
+
+    private final static Gson GSON = new Gson();
 
     private DefaultPipelineTemplate pipeline;
+    private String pipelineRaw;
 
     static {
         try {
             EMPTY_PIPELINE_TEMPLATE = loadFromClasspath("META-INF/templates/empty-pipeline-template.md");
+            EMPTY_PIPELINE = loadFromClasspath("META-INF/templates/empty-pipeline.md");
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -34,11 +39,6 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
 
     public PipelineTemplateMarkdown(String markdown) {
         super(markdown);
-    }
-
-    private void test() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        System.out.println(gson.toJson(pipeline));
     }
 
     @Override
@@ -112,7 +112,7 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
 
     @Override
     protected void configure() {
-        this.pipeline = new DefaultPipelineTemplate();
+        this.pipeline = new DefaultPipelineTemplate(this);
         pipeline.setName(metadata.name);
         root.getChild(PARAMETERS).getChildren().forEach((k, v) -> {
             PipelineParameterDefinition definition = (PipelineParameterDefinition) v.getComponentDefinition();
@@ -137,8 +137,24 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
         TemplateMarkdownNode configNode = root.getChild(CONFIGURATION);
         PipelineInitializerDefinition initializerDefinition = (PipelineInitializerDefinition) configNode.getChild(PipelineInitializerDefinition.INITIALIZER).getComponentDefinition();
 
+        try {
+            this.pipelineRaw = ZipEncryptUtils.zipAndBase64(GSON.toJson(pipeline));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         test();
+
+    }
+
+    private void test() {
+        Pipeline pl = create("xyz", null);
+        try {
+            System.out.println(pl);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -192,13 +208,20 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
     }
 
     @Override
-    public List<TemplateAnnotator> getAnnotators() {
+    public List<AnnotatorTemplate> getAnnotators() {
         return pipeline.getAnnotators();
     }
 
     @Override
     public List<TemplateRenderer> getRenderers() {
         return pipeline.getRenderers();
+    }
+
+    @Override
+    public Pipeline create(String name, Object context) {
+        String md = EMPTY_PIPELINE.replace("${name}", "XYZ").replace("${template}", pipelineRaw);
+
+        return new PipelineMarkdown(md);
     }
 
     static class PipelineTemplateMetadata extends Metadata {

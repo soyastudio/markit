@@ -1,8 +1,8 @@
 package sorya.framework.markita.support;
 
-import sorya.framework.markita.TemplateAnnotation;
+import sorya.framework.markita.Annotator;
 
-public class DefaultTemplateAnnotation implements TemplateAnnotation {
+public class DefaultAnnotator implements Annotator {
 
     @Override
     public String getName() {

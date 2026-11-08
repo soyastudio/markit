@@ -1,6 +1,6 @@
 package sorya.framework.markita;
 
-public interface TemplateAnnotator extends TemplateComponent {
+public interface AnnotatorTemplate extends TemplateComponent {
 
     TemplateSchema getSchema();
 

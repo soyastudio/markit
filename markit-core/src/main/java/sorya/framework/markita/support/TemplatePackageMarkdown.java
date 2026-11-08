@@ -1,7 +1,6 @@
 package sorya.framework.markita.support;
 
 import org.commonmark.node.FencedCodeBlock;
-import sorya.framework.markita.DefaultTemplateExecutor;
 import sorya.framework.markita.TemplateFunction;
 import sorya.framework.markita.TemplateFunctionPackage;
 

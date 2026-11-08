@@ -108,8 +108,10 @@ public abstract class ExecutableMarkdown<T extends ExecutableMarkdown.Metadata> 
         } else if (heading.getLevel() == 2 && heading.getFirstChild() instanceof Link link) {
             // Domain/Group Level:
             TemplateMarkdownNode tn = root.findByPath(link.getDestination());
-            if (link.getFirstChild() instanceof Text txt) {
+            if(tn != null && link.getFirstChild() instanceof Text txt) {
                 tn.setTitle(txt.getLiteral());
+            } else {
+                throw new IllegalArgumentException("Illegal Markdown format!");
             }
 
             describe(heading, tn);

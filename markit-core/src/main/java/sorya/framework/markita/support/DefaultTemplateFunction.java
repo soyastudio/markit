@@ -9,7 +9,7 @@ public class DefaultTemplateFunction extends AbstractTemplateComponent implement
 
     private String templateFormat;
     private String template;
-    private TemplateSchema schema;
+    private DefaultTemplateSchema schema;
 
     public DefaultTemplateFunction(String name, Map<String, String> properties) {
         super(name, properties);
@@ -40,6 +40,6 @@ public class DefaultTemplateFunction extends AbstractTemplateComponent implement
     }
 
     public void setSchema(TemplateSchema schema) {
-        this.schema = schema;
+        this.schema = (DefaultTemplateSchema) schema;
     }
 }

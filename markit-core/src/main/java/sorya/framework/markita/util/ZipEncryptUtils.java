@@ -7,6 +7,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.zip.DeflaterOutputStream;
@@ -17,16 +19,21 @@ public class ZipEncryptUtils {
     private static final String ALGORITHM = "AES";
     private static final int KEY_SIZE = 256; // or 128, 192, 256
 
-
     // Compress (Zip) -> Base64 String
     public static String zipAndBase64(String data) throws Exception {
-        byte[] compressed = compress(data.getBytes("UTF-8"));
+        byte[] compressed = compress(data.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(compressed);
+    }
+
+    // Base64 decode -> Decompress (Unzip) -> String
+    public static String base64DecodeAndUnzip(String data) throws Exception {
+        byte[] compressed = Base64.getDecoder().decode(data);
+        return new String(decompress(compressed));
     }
 
     // Compress (Zip) -> Encrypt -> Base64 String
     public static String zipAndEncrypt(String data, SecretKey secretKey) throws Exception {
-        byte[] compressed = compress(data.getBytes("UTF-8"));
+        byte[] compressed = compress(data.getBytes(StandardCharsets.UTF_8));
         byte[] encrypted = encrypt(compressed, secretKey);
         return Base64.getEncoder().encodeToString(encrypted);
     }
@@ -36,7 +43,7 @@ public class ZipEncryptUtils {
         byte[] encrypted = Base64.getDecoder().decode(encryptedBase64);
         byte[] decrypted = decrypt(encrypted, secretKey);
         byte[] decompressed = decompress(decrypted);
-        return new String(decompressed, "UTF-8");
+        return new String(decompressed, StandardCharsets.UTF_8);
     }
 
     // Compression using Deflater
@@ -107,13 +114,13 @@ public class ZipEncryptUtils {
 
             // Compress and Encrypt
             String securedString = ZipEncryptUtils.zipAndEncrypt(originalText, key);
-            System.out.println("Secured String: " + securedString);
+            System.out.println("ZipEncryptUtils Secured String: " + securedString);
             try {
                 Base64.getDecoder().decode(securedString);
                 String stringKey = createSecretKey();
-                System.out.println("=============== " + stringKey + ": " + stringKey.length());
+                System.out.println("=============== ZipEncryptUtils: " + stringKey + ": " + stringKey.length());
 
-                System.out.println(getSecretKey(stringKey).getAlgorithm());
+                System.out.println("ZipEncryptUtils: " + getSecretKey(stringKey).getAlgorithm());
 
             } catch (IllegalArgumentException e) {
                 throw new RuntimeException(e);

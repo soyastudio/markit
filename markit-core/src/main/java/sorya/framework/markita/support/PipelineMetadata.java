@@ -5,18 +5,9 @@ import java.util.List;
 
 public class PipelineMetadata extends ExecutableMarkdown.Metadata {
 
-    private String status;
-    private String initializer;
-
     private List<String> annotators = new ArrayList<>();
-
-    public String getInitializer() {
-        return initializer;
-    }
-
-    public void setInitializer(String initializer) {
-        this.initializer = initializer;
-    }
+    private List<String> renderers = new ArrayList<>();
+    private String template;
 
     public List<String> getAnnotators() {
         return annotators;
@@ -26,8 +17,24 @@ public class PipelineMetadata extends ExecutableMarkdown.Metadata {
         this.annotators = annotators;
     }
 
+    public List<String> getRenderers() {
+        return renderers;
+    }
+
+    public void setRenderers(List<String> renderers) {
+        this.renderers = renderers;
+    }
+
+    public String getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(String template) {
+        this.template = template;
+    }
+
     @Override
     protected String[] getDeclaredFieldNames() {
-        return new String[]{"initializer", "annotators"};
+        return new String[]{"annotators", "renderers", "template"};
     }
 }

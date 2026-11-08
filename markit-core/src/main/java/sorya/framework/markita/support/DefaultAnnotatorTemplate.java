@@ -1,19 +1,18 @@
 package sorya.framework.markita.support;
 
-import sorya.framework.markita.TemplateAnnotator;
-import sorya.framework.markita.TemplateContext;
+import sorya.framework.markita.AnnotatorTemplate;
 import sorya.framework.markita.TemplateSchema;
 
 import java.util.Map;
 
-public class DefaultTemplateAnnotator extends AbstractTemplateComponent implements TemplateAnnotator {
+public class DefaultAnnotatorTemplate extends AbstractTemplateComponent implements AnnotatorTemplate {
 
     private TemplateSchema schema;
     private String scriptType;
     private String scriptTemplateFormat;
     private String scriptTemplate;
 
-    public DefaultTemplateAnnotator(String name, Map<String, String> properties) {
+    public DefaultAnnotatorTemplate(String name, Map<String, String> properties) {
         super(name, properties);
     }
 

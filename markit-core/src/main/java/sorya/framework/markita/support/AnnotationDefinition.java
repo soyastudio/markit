@@ -1,11 +1,11 @@
 package sorya.framework.markita.support;
 
-import sorya.framework.markita.TemplateAnnotation;
+import sorya.framework.markita.Annotator;
 import sorya.framework.markita.util.TextBuilder;
 
 import java.util.Map;
 
-public class AnnotationDefinition extends TemplateComponentDefinition<TemplateAnnotation> {
+public class AnnotationDefinition extends TemplateComponentDefinition<Annotator> {
     public static final String ANNOTATION_SCRIPT = "ANNOTATION-SCRIPT";
     public static final String ANNOTATION_VALUE = "ANNOTATION-VALUE";
 
@@ -40,7 +40,7 @@ public class AnnotationDefinition extends TemplateComponentDefinition<TemplateAn
     }
 
     @Override
-    TemplateAnnotation create() {
-        return new DefaultTemplateAnnotation();
+    Annotator create() {
+        return new DefaultAnnotator();
     }
 }

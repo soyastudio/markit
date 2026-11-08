@@ -1,6 +1,7 @@
 package sorya.framework.markita;
 
-public interface TemplateAnnotation extends TemplateComponent {
+public interface Annotator extends TemplateComponent {
+
     String getScriptType();
 
     String getScript();
