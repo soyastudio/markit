@@ -12,15 +12,17 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntFunction;
 
 public class DefaultTemplateSchema implements TemplateSchema {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private List<TemplateParameter> parameters = new ArrayList<>();
+
+    private List<DefaultTemplateParameter> parameters = new ArrayList<>();
 
     public DefaultTemplateSchema() {
     }
 
-    public DefaultTemplateSchema(List<TemplateParameter> parameters) {
+    public DefaultTemplateSchema(List<DefaultTemplateParameter> parameters) {
         if(parameters != null) {
             this.parameters = parameters;
         }
@@ -32,8 +34,12 @@ public class DefaultTemplateSchema implements TemplateSchema {
     }
 
     @Override
-    public List<TemplateParameter> getParameters() {
-        return parameters;
+    public TemplateParameter[] getParameters() {
+        return parameters.toArray(new TemplateParameter[0]);
+    }
+
+    public void addParameter(DefaultTemplateParameter parameter) {
+        parameters.add(parameter);
     }
 
     public static TemplateSchema create(String format, String schema) {
@@ -49,7 +55,7 @@ public class DefaultTemplateSchema implements TemplateSchema {
     }
 
     public static TemplateSchema fromYaml(String yaml) {
-        List<TemplateParameter> params = new ArrayList<>();
+        List<DefaultTemplateParameter> params = new ArrayList<>();
         Map<String, Object> data = new Yaml().load(yaml);
         if(data.containsKey("$schema")) {
 

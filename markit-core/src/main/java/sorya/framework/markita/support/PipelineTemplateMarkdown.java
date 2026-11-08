@@ -116,22 +116,22 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
         pipeline.setName(metadata.name);
         root.getChild(PARAMETERS).getChildren().forEach((k, v) -> {
             PipelineParameterDefinition definition = (PipelineParameterDefinition) v.getComponentDefinition();
-            pipeline.getSchema().getParameters().add(definition.create());
+            pipeline.getSchema().addParameter(definition.create());
         });
 
         root.getChild(FUNCTIONS).getChildren().forEach((k, v) -> {
             FunctionDefinition definition = (FunctionDefinition) v.getComponentDefinition();
-            pipeline.getFunctions().add(definition.create());
+            pipeline.addFunction(definition.create());
         });
 
         root.getChild(ANNOTATORS).getChildren().forEach((k, v) -> {
             AnnotatorDefinition definition = (AnnotatorDefinition) v.getComponentDefinition();
-            pipeline.getAnnotators().add(definition.create());
+            pipeline.addAnnotator(definition.create());
         });
 
         root.getChild(RENDERERS).getChildren().forEach((k, v) -> {
             RendererDefinition definition = (RendererDefinition) v.getComponentDefinition();
-            pipeline.getRenderers().add(definition.create());
+            pipeline.addRenderer(definition.create());
         });
 
         TemplateMarkdownNode configNode = root.getChild(CONFIGURATION);
@@ -203,17 +203,17 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
     }
 
     @Override
-    public List<TemplateFunction> getFunctions() {
+    public TemplateFunction[] getFunctions() {
         return pipeline.getFunctions();
     }
 
     @Override
-    public List<AnnotatorTemplate> getAnnotators() {
+    public AnnotatorTemplate[] getAnnotators() {
         return pipeline.getAnnotators();
     }
 
     @Override
-    public List<TemplateRenderer> getRenderers() {
+    public TemplateRenderer[] getRenderers() {
         return pipeline.getRenderers();
     }
 

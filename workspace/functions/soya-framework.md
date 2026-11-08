@@ -7,7 +7,7 @@ tags:
   - java
 functions: 
   - Singleton
-metadata:
+
 ---
 
 # [Template Function Package: soya.framework](.)

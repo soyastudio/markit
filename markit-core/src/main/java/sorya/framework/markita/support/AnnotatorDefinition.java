@@ -1,11 +1,10 @@
 package sorya.framework.markita.support;
 
-import sorya.framework.markita.AnnotatorTemplate;
 import sorya.framework.markita.util.TextBuilder;
 
 import java.util.Map;
 
-public class AnnotatorDefinition extends TemplateComponentDefinition<AnnotatorTemplate> {
+public class AnnotatorDefinition extends TemplateComponentDefinition<DefaultAnnotatorTemplate> {
 
     private String scriptType;
     private final TemplateElement schemaElement = new TemplateElement();
@@ -30,10 +29,10 @@ public class AnnotatorDefinition extends TemplateComponentDefinition<AnnotatorTe
     @Override
     public void toMarkdown(TextBuilder builder) {
 
-        if(getProperties() != null) {
+        if (getProperties() != null) {
             builder.newLineWithCurrentIndents("Properties");
             builder.newLineWithCurrentIndents("<pre><code>");
-            getProperties().forEach((k,v) -> {
+            getProperties().forEach((k, v) -> {
                 builder.newLineWithCurrentIndents(k).append(": ").append(v);
             });
             builder.newLineWithCurrentIndents("</code></pre>");
@@ -55,7 +54,7 @@ public class AnnotatorDefinition extends TemplateComponentDefinition<AnnotatorTe
     }
 
     @Override
-    AnnotatorTemplate create() {
+    DefaultAnnotatorTemplate create() {
         DefaultAnnotatorTemplate annotator = new DefaultAnnotatorTemplate(getName(), getProperties());
 
 

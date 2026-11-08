@@ -15,7 +15,6 @@ public class DefaultTemplateFunction extends AbstractTemplateComponent implement
         super(name, properties);
     }
 
-
     @Override
     public String getTemplateFormat() {
         return templateFormat;

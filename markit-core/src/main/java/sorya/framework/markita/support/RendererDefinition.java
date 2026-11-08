@@ -5,7 +5,7 @@ import sorya.framework.markita.util.TextBuilder;
 
 import java.util.Map;
 
-public class RendererDefinition extends TemplateComponentDefinition<TemplateRenderer> {
+public class RendererDefinition extends TemplateComponentDefinition<DefaultTemplateRenderer> {
     public static final String ASSIGNMENT_TOKEN = "ASSIGNMENT";
 
     private final TemplateElement assignmentElement = new TemplateElement("jsonpath", null);
@@ -40,7 +40,7 @@ public class RendererDefinition extends TemplateComponentDefinition<TemplateRend
     }
 
     @Override
-    TemplateRenderer create() {
+    DefaultTemplateRenderer create() {
         return new DefaultTemplateRenderer(getName(), getProperties());
     }
 }

@@ -5,10 +5,7 @@ import org.commonmark.node.FencedCodeBlock;
 import sorya.framework.markita.*;
 import sorya.framework.markita.util.ZipEncryptUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PipelineMarkdown extends ExecutableMarkdown<PipelineMetadata> implements Pipeline {
 
@@ -18,13 +15,13 @@ public class PipelineMarkdown extends ExecutableMarkdown<PipelineMetadata> imple
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    private final List<TemplateParameter> schema = new ArrayList<>();
-    private Map<String, TemplateFunction> functions = new LinkedHashMap<>();
-    private Map<String, AnnotatorTemplate> annotators = new LinkedHashMap<>();
+    private TemplateSchema schema;
+    private Map<String, TemplateFunction> functions;
+    private Map<String, AnnotatorTemplate> annotatorTemplates;
 
-    private final Map<String, Object> parameters = new LinkedHashMap<>();
-    private final Map<String, Annotator> annotations = new LinkedHashMap<>();
-    private final Map<String, TemplateRenderer> renderers = new LinkedHashMap<>();
+    private Map<String, Object> parameters;
+    private Map<String, Annotator> annotations;
+    private Map<String, TemplateRenderer> renderers;
 
     public PipelineMarkdown(String markdown) {
         super(markdown);
@@ -46,7 +43,14 @@ public class PipelineMarkdown extends ExecutableMarkdown<PipelineMetadata> imple
 
     @Override
     protected void init() {
-        parse(metadata.getTemplate());
+        this.functions = new LinkedHashMap<>();
+        this.annotatorTemplates = new LinkedHashMap<>();
+
+        this.parameters = new LinkedHashMap<>();
+        this.annotations = new LinkedHashMap<>();
+        this.renderers = new LinkedHashMap<>();
+
+        initTemplate(metadata.getTemplate());
 
         root.setTitle("PIPELINE: " + metadata.getName());
         TemplateMarkdownNode parameters = new TemplateMarkdownNode(PARAMETERS, "Pipeline Parameters", null);
@@ -59,11 +63,23 @@ public class PipelineMarkdown extends ExecutableMarkdown<PipelineMetadata> imple
         root.addChild(renderers);
     }
 
-    private void parse(String template) {
+    private void initTemplate(String template) {
         try {
             String json = ZipEncryptUtils.base64DecodeAndUnzip(template);
+            PipelineTemplate pipelineTemplate = DefaultPipelineTemplate.fromJson(json);
 
+            this.schema = pipelineTemplate.getSchema();
+            Arrays.stream(pipelineTemplate.getFunctions()).forEach(f -> {
+                functions.put(f.getName(), f);
+            });
 
+            Arrays.stream(pipelineTemplate.getAnnotators()).forEach(a -> {
+                annotatorTemplates.put(a.getName(), a);
+            });
+
+            Arrays.stream(pipelineTemplate.getRenderers()).forEach(r -> {
+                renderers.put(r.getName(), r);
+            });
 
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -12,9 +12,9 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
 
     private String name;
     private final DefaultTemplateSchema schema = new DefaultTemplateSchema();
-    private final List<TemplateFunction> functions= new ArrayList<>();
-    private final List<AnnotatorTemplate> annotators = new ArrayList<>();
-    private final List<TemplateRenderer> renderers = new ArrayList<>();
+    private final List<DefaultTemplateFunction> functions= new ArrayList<>();
+    private final List<DefaultAnnotatorTemplate> annotators = new ArrayList<>();
+    private final List<DefaultTemplateRenderer> renderers = new ArrayList<>();
 
     private transient final PipelineTemplateMarkdown markdown;
 
@@ -32,7 +32,7 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
     }
 
     @Override
-    public TemplateSchema getSchema() {
+    public DefaultTemplateSchema getSchema() {
         return schema;
     }
 
@@ -41,18 +41,30 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
     }
 
     @Override
-    public List<TemplateFunction> getFunctions() {
-        return functions;
+    public TemplateFunction[] getFunctions() {
+        return functions.toArray(new TemplateFunction[0]);
     }
 
     @Override
-    public List<AnnotatorTemplate> getAnnotators() {
-        return annotators;
+    public AnnotatorTemplate[] getAnnotators() {
+        return annotators.toArray(new AnnotatorTemplate[0]);
     }
 
     @Override
-    public List<TemplateRenderer> getRenderers() {
-        return renderers;
+    public TemplateRenderer[] getRenderers() {
+        return renderers.toArray(new TemplateRenderer[0]);
+    }
+
+    public void addFunction(DefaultTemplateFunction function) {
+        functions.add(function);
+    }
+
+    public void addAnnotator(DefaultAnnotatorTemplate annotatorTemplate) {
+        annotators.add(annotatorTemplate);
+    }
+
+    public void addRenderer(DefaultTemplateRenderer renderer) {
+        renderers.add(renderer);
     }
 
     @Override
@@ -65,7 +77,7 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
     }
 
     public static PipelineTemplate fromJson(String json) {
-        DefaultPipelineTemplate template = new DefaultPipelineTemplate();
+        /*DefaultPipelineTemplate template = new DefaultPipelineTemplate();
         JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
 
         JsonElement schema = jsonObject.get("schema");
@@ -88,6 +100,8 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
 
 
 
-        return template;
+        return template;*/
+
+        return gson.fromJson(json, DefaultPipelineTemplate.class);
     }
 }

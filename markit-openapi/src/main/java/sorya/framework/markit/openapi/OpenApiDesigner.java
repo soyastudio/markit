@@ -56,17 +56,17 @@ public class OpenApiDesigner implements PipelineResourceExtractor<OpenAPI> {
 
 
         // init params:
-        TemplateMarkdownNode init = root.getChild(PipelineMarkdown.INIT_PARAMS).getChild(PipelineInitParamsDefinition.INIT_PARAMS);
+        TemplateMarkdownNode init = root.getChild(PipelineMarkdown.PARAMETERS).getChild(PipelineInitParamsDefinition.INIT_PARAMS);
         PipelineInitParamsDefinition initParamsDefinition = (PipelineInitParamsDefinition) init.getComponentDefinition();
         initParamsDefinition.getParamElement().setBody(OPENAPI_META_INFO);
 
         // operations:
-        TemplateMarkdownNode annotators = root.getChild(PipelineMarkdown.ANNOTATORS);
+        TemplateMarkdownNode annotators = root.getChild(PipelineMarkdown.ANNOTATIONS);
         if(metadata.getMetadata("metadata.operations") instanceof List<?> list) {
             list.forEach(o -> {
                 AnnotationDefinition annotationDefinition = new AnnotationDefinition(o.toString(), null);
                 annotationDefinition.getScriptElement().setBody(OPENAPI_OPERATION.replace("operationId:", "operationId: " + o));
-                pl.getRootMarkdownNode().getChild(PipelineMarkdown.ANNOTATORS).addChild(new TemplateMarkdownNode(o.toString(), "Operation Annotation: " + o,  annotationDefinition));
+                pl.getRootMarkdownNode().getChild(PipelineMarkdown.ANNOTATIONS).addChild(new TemplateMarkdownNode(o.toString(), "Operation Annotation: " + o,  annotationDefinition));
             });
         }
 

@@ -5,7 +5,7 @@ import sorya.framework.markita.util.TextBuilder;
 
 import java.util.Map;
 
-public class FunctionDefinition extends TemplateComponentDefinition<TemplateFunction> {
+public class FunctionDefinition extends TemplateComponentDefinition<DefaultTemplateFunction> {
 
     public static final String DEFAULT_TEMPLATE_FORMAT = "freemarker";
     public static final String DEFAULT_TEMPLATE_CONTENTS = TextBuilder.builder("Hello ${name}!").toString();
@@ -62,7 +62,7 @@ public class FunctionDefinition extends TemplateComponentDefinition<TemplateFunc
     }
 
     @Override
-    TemplateFunction create() {
+    DefaultTemplateFunction create() {
         DefaultTemplateFunction function = new DefaultTemplateFunction(getName(), getProperties());
         function.setTemplateFormat(templateElement.getFormat());
         function.setTemplate(templateElement.getBody());
