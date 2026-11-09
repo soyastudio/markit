@@ -21,8 +21,8 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
 
     private final static Gson GSON = new Gson();
 
-    private DefaultPipelineTemplate pipeline;
-    private String pipelineRaw;
+    private DefaultPipelineTemplate pipelineTemplate;
+    private String pipelineTemplateRaw;
 
     static {
         try {
@@ -112,33 +112,33 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
 
     @Override
     protected void configure() {
-        this.pipeline = new DefaultPipelineTemplate(this);
-        pipeline.setName(metadata.name);
+        this.pipelineTemplate = new DefaultPipelineTemplate(this);
+        pipelineTemplate.setName(metadata.name);
         root.getChild(PARAMETERS).getChildren().forEach((k, v) -> {
             PipelineParameterDefinition definition = (PipelineParameterDefinition) v.getComponentDefinition();
-            pipeline.getSchema().addParameter(definition.create());
+            pipelineTemplate.getSchema().addParameter(definition.create());
         });
 
         root.getChild(FUNCTIONS).getChildren().forEach((k, v) -> {
             FunctionDefinition definition = (FunctionDefinition) v.getComponentDefinition();
-            pipeline.addFunction(definition.create());
+            pipelineTemplate.addFunction(definition.create());
         });
 
         root.getChild(ANNOTATORS).getChildren().forEach((k, v) -> {
             AnnotatorDefinition definition = (AnnotatorDefinition) v.getComponentDefinition();
-            pipeline.addAnnotator(definition.create());
+            pipelineTemplate.addAnnotator(definition.create());
         });
 
         root.getChild(RENDERERS).getChildren().forEach((k, v) -> {
             RendererDefinition definition = (RendererDefinition) v.getComponentDefinition();
-            pipeline.addRenderer(definition.create());
+            pipelineTemplate.addRenderer(definition.create());
         });
 
         TemplateMarkdownNode configNode = root.getChild(CONFIGURATION);
         PipelineInitializerDefinition initializerDefinition = (PipelineInitializerDefinition) configNode.getChild(PipelineInitializerDefinition.INITIALIZER).getComponentDefinition();
 
         try {
-            this.pipelineRaw = ZipEncryptUtils.zipAndBase64(GSON.toJson(pipeline));
+            this.pipelineTemplateRaw = ZipEncryptUtils.zipAndBase64(GSON.toJson(pipelineTemplate));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -199,27 +199,27 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
 
     @Override
     public TemplateSchema getSchema() {
-        return pipeline.getSchema();
+        return pipelineTemplate.getSchema();
     }
 
     @Override
     public TemplateFunction[] getFunctions() {
-        return pipeline.getFunctions();
+        return pipelineTemplate.getFunctions();
     }
 
     @Override
     public AnnotatorTemplate[] getAnnotators() {
-        return pipeline.getAnnotators();
+        return pipelineTemplate.getAnnotators();
     }
 
     @Override
     public TemplateRenderer[] getRenderers() {
-        return pipeline.getRenderers();
+        return pipelineTemplate.getRenderers();
     }
 
     @Override
     public Pipeline create(String name, Object context) {
-        String md = EMPTY_PIPELINE.replace("${name}", "XYZ").replace("${template}", pipelineRaw);
+        String md = EMPTY_PIPELINE.replace("${name}", "XYZ").replace("${template}", pipelineTemplateRaw);
 
         return new PipelineMarkdown(md);
     }

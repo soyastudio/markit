@@ -8,6 +8,7 @@ import sorya.framework.markita.TemplateFunctionInvoker;
 import sorya.framework.markita.TemplateSchema;
 import sorya.framework.markita.templates.FreemarkerExecutor;
 import sorya.framework.markita.templates.HandlebarsExecutor;
+import sorya.framework.markita.templates.PythonExecutor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,10 @@ public class DefaultTemplateFunctionInvoker implements TemplateFunctionInvoker {
         executors.put("MUSTACHE", mustacheExecutor);
         executors.put("HANDLEBARS", mustacheExecutor);
         executors.put("HBS", mustacheExecutor);
+
+        // Python3
+        TemplateExecutor pythonExecutor = new PythonExecutor();
+        executors.put("PYTHON", pythonExecutor);
 
     }
 

@@ -27,11 +27,12 @@ renderers:
 
 ### [Pipeline Initializer Template](./CONFIGURATION/INITIALIZER)
 **Pipeline Initializer Script**
-```freemarker SCRIPT
+```python SCRIPT
+
 
 ```
 
 **Pipeline Initializer Schema**
-```json SCHEMA
+```yaml SCHEMA
 
 ```
