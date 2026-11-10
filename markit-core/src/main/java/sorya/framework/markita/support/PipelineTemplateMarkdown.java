@@ -221,6 +221,7 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
     public Pipeline create(String name, Object context) {
         String md = EMPTY_PIPELINE.replace("${name}", "XYZ").replace("${template}", pipelineTemplateRaw);
 
+
         return new PipelineMarkdown(md);
     }
 

@@ -6,11 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import sorya.framework.markita.PipelineTemplate;
-import sorya.framework.markita.TemplatePipelineEngine;
+import sorya.framework.markita.PipelineEngine;
 import sorya.framework.markita.support.PipelineMarkdown;
 import sorya.framework.markita.support.PipelineMetadata;
-import sorya.framework.markita.support.PipelineTemplateMarkdown;
 import soya.framework.markit.workshop.configuration.Workspace;
 
 import java.io.File;
@@ -20,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 @Service
 public class PipelineService {
@@ -34,7 +31,7 @@ public class PipelineService {
     private String secretKey;
 
     @Autowired
-    private TemplatePipelineEngine templateEngine;
+    private PipelineEngine templateEngine;
 
     @Autowired
     private PipelineTemplateService pipelineTemplateService;

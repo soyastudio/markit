@@ -18,7 +18,7 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
 
     private transient final PipelineTemplateMarkdown markdown;
 
-    public DefaultPipelineTemplate() {
+    protected DefaultPipelineTemplate() {
         this.markdown = null;
     }
 
@@ -77,31 +77,6 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
     }
 
     public static PipelineTemplate fromJson(String json) {
-        /*DefaultPipelineTemplate template = new DefaultPipelineTemplate();
-        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-
-        JsonElement schema = jsonObject.get("schema");
-        if(schema != null) {
-            JsonElement params = schema.getAsJsonObject().get("parameters");
-            if(params != null) {
-                params.getAsJsonArray().forEach(p -> {
-                    DefaultTemplateParameter parameter = gson.fromJson(p, DefaultTemplateParameter.class);
-
-                });
-            }
-        }
-
-        JsonElement funcs = jsonObject.get("functions");
-        if(funcs != null) {
-            funcs.getAsJsonArray().forEach(f -> {
-                DefaultTemplateFunction function = gson.fromJson(f, DefaultTemplateFunction.class);
-            });
-        }
-
-
-
-        return template;*/
-
         return gson.fromJson(json, DefaultPipelineTemplate.class);
     }
 }

@@ -5,11 +5,11 @@ import sorya.framework.markita.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultTemplatePipelineEngine implements TemplatePipelineEngine {
+public class DefaultPipelineEngine implements PipelineEngine {
     private final PipelineTemplateLocator locator;
     protected Map<String, PipelineTemplate> pipelines = new HashMap<>();
 
-    public DefaultTemplatePipelineEngine(PipelineTemplateLocator locator) {
+    public DefaultPipelineEngine(PipelineTemplateLocator locator) {
         this.locator = locator;
     }
 

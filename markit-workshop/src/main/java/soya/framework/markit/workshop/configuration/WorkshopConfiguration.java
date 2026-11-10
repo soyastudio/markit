@@ -98,8 +98,8 @@ public class WorkshopConfiguration {
     }
 
     @Bean
-    public TemplatePipelineEngine templateEngine(PipelineTemplateLocator locator) {
-        return new DefaultTemplatePipelineEngine(locator);
+    public PipelineEngine templateEngine(PipelineTemplateLocator locator) {
+        return new DefaultPipelineEngine(locator);
     }
 
     static class DefaultPipelineTemplateLocator implements PipelineTemplateLocator {
