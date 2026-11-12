@@ -10,8 +10,8 @@ public class PipelineInitializerDefinition extends TemplateComponentDefinition<P
     public static final String INIT_SCRIPT = "SCRIPT";
     public static final String INIT_SCHEMA = "SCHEMA";
 
-    private final TemplateElement initScriptElement = new TemplateElement("freemarker", null);
-    private final TemplateElement initSchemaElement = new TemplateElement("json", null);
+    private final TemplateElement initScriptElement = new TemplateElement("python", null);
+    private final TemplateElement initSchemaElement = new TemplateElement("yaml", null);
 
     public PipelineInitializerDefinition(String name, Map<String, String> properties) {
         super(name, properties);
@@ -42,6 +42,12 @@ public class PipelineInitializerDefinition extends TemplateComponentDefinition<P
 
     @Override
     PipelineInitializer create() {
-        return null;
+        PipelineInitializer initializer = new PipelineInitializer();
+        initializer.setScriptType(initScriptElement.getFormat());
+        initializer.setScript(initScriptElement.getBody());
+        initializer.setSchemaFormat(initializer.getSchemaFormat());
+        initializer.setSchema(initSchemaElement.getBody());
+
+        return initializer;
     }
 }

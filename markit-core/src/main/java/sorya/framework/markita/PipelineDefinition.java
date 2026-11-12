@@ -1,11 +1,21 @@
 package sorya.framework.markita;
 
-import java.util.Map;
 
-public interface PipelineDefinition {
-    String[] getFunctionNames();
+public interface PipelineDefinition extends TemplateComponent {
 
-    String[] getAnnotatorTemplateNames();
+    AnnotatorDefinition[] getAnnotatorDefinitions();
 
-    Map<String, String> getAnnotatorDefinitions();
+    RendererDefinition[] getRendererDefinitions();
+
+    interface AnnotatorDefinition {
+        String getName();
+
+        String getTemplate();
+    }
+
+    interface RendererDefinition {
+        String getName();
+
+        String getTemplateFunction();
+    }
 }

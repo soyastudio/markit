@@ -6,6 +6,7 @@ import sorya.framework.markita.*;
 import sorya.framework.markita.util.ZipEncryptUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplateMarkdown.PipelineTemplateMetadata> implements PipelineTemplate {
@@ -17,6 +18,7 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
     public static final String CONFIGURATION = "CONFIGURATION";
 
     private static final String EMPTY_PIPELINE_TEMPLATE;
+    private static final String EMPTY_PIPELINE_DEFINITION;
     private static final String EMPTY_PIPELINE;
 
     private final static Gson GSON = new Gson();
@@ -24,9 +26,12 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
     private DefaultPipelineTemplate pipelineTemplate;
     private String pipelineTemplateRaw;
 
+    private PipelineInitializer initializer;
+
     static {
         try {
             EMPTY_PIPELINE_TEMPLATE = loadFromClasspath("META-INF/templates/empty-pipeline-template.md");
+            EMPTY_PIPELINE_DEFINITION = loadFromClasspath("META-INF/templates/empty-pipeline-definition.md");
             EMPTY_PIPELINE = loadFromClasspath("META-INF/templates/empty-pipeline.md");
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
@@ -103,6 +108,7 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
         // Configuration:
         TemplateMarkdownNode configuration = new TemplateMarkdownNode(CONFIGURATION, "Pipeline Configuration", null);
         root.addChild(configuration);
+
         // - Initializer Template
         PipelineInitializerDefinition initializerDefinition = new PipelineInitializerDefinition(PipelineInitializerDefinition.INITIALIZER, null);
         TemplateMarkdownNode init = new TemplateMarkdownNode(PipelineInitializerDefinition.INITIALIZER, "Pipeline Initializer Template", initializerDefinition);
@@ -136,6 +142,7 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
 
         TemplateMarkdownNode configNode = root.getChild(CONFIGURATION);
         PipelineInitializerDefinition initializerDefinition = (PipelineInitializerDefinition) configNode.getChild(PipelineInitializerDefinition.INITIALIZER).getComponentDefinition();
+        this.initializer = initializerDefinition.create();
 
         try {
             this.pipelineTemplateRaw = ZipEncryptUtils.zipAndBase64(GSON.toJson(pipelineTemplate));
@@ -148,7 +155,7 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
     }
 
     private void test() {
-        Pipeline pl = create("xyz", null);
+        PipelineDefinition pl = createPipelineDefinition();
         try {
             System.out.println(pl);
 
@@ -218,11 +225,37 @@ public class PipelineTemplateMarkdown extends ExecutableMarkdown<PipelineTemplat
     }
 
     @Override
-    public Pipeline create(String name, Object context) {
+    public PipelineDefinition createPipelineDefinition() {
+
+        PipelineDefinitionMarkdown definition = new PipelineDefinitionMarkdown(EMPTY_PIPELINE_DEFINITION);
+        definition.metadata = this.metadata;
+
+        TemplateMarkdownNode configuration = definition.getRootMarkdownNode().getChild(CONFIGURATION);
+        configuration.getChildren().forEach((k, v) -> {
+            if (v.getComponentDefinition() instanceof PipelineDefinitionDefinition def) {
+                def.getInitScriptElement().setFormat(initializer.getScriptType());
+                def.getInitScriptElement().setBody(initializer.getScript());
+            }
+
+        });
+
+        return definition;
+    }
+
+    @Override
+    public Pipeline create(String name, PipelineDefinition definition) {
         String md = EMPTY_PIPELINE.replace("${name}", "XYZ").replace("${template}", pipelineTemplateRaw);
+        PipelineMarkdown pipeline = new PipelineMarkdown(md);
+        PipelineMetadata meta = pipeline.getMetadata();
+        Arrays.stream(definition.getAnnotatorDefinitions()).forEach(e -> {
+            meta.getAnnotators().add(e.getName() + "?template=" + e.getTemplate());
+        });
 
+        Arrays.stream(definition.getRendererDefinitions()).forEach(e -> {
+            meta.getRenderers().add(e.getName() + "?function=" + e.getTemplateFunction());
+        });
 
-        return new PipelineMarkdown(md);
+        return pipeline;
     }
 
     static class PipelineTemplateMetadata extends Metadata {

@@ -31,8 +31,7 @@ renderers:
 
 ### [Function: openapi](./FUNCTIONS/openapi)
 **Template**
-```freemarker TEMPLATE
-Hello ${name}!
+```python TEMPLATE
 
 ```
 
@@ -86,7 +85,8 @@ Function Assignment:
 
 ### [Pipeline Initializer Template](./CONFIGURATION/INITIALIZER)
 **Pipeline Initializer Script**
-```freemarker SCRIPT
+```python SCRIPT
+print('Hello')
 
 ```
 

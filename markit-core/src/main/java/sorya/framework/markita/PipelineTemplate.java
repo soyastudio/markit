@@ -8,5 +8,8 @@ public interface PipelineTemplate extends TemplateExecutable {
 
     TemplateRenderer[] getRenderers();
 
-    Pipeline create(String name, Object context);
+    PipelineDefinition createPipelineDefinition();
+
+    Pipeline create(String name, PipelineDefinition definition);
+
 }

@@ -68,8 +68,13 @@ public class DefaultPipelineTemplate implements PipelineTemplate {
     }
 
     @Override
-    public Pipeline create(String name, Object context) {
-        return markdown.create(name, context);
+    public PipelineDefinition createPipelineDefinition() {
+        return markdown.createPipelineDefinition();
+    }
+
+    @Override
+    public Pipeline create(String name, PipelineDefinition definition) {
+        return markdown.create(name, definition);
     }
 
     public static String toJson(PipelineTemplate pipelineTemplate) {
